@@ -11,15 +11,25 @@
 						<li class="<cfif rc.action eq 'public:main'>active</cfif> dropdown">
 							<a class="dropdown-toggle" data-toggle="dropdown" href="#buildURL('public:main')#">Home <span class="caret"></span></a>
 							<ul class="dropdown-menu">
-								<li class="<cfif rc.action eq 'public:main.login'>active</cfif>">
-									<a href="?display=login"><i class="icon-home"></i> Account Login</a>
-								</li>
-								<li class="<cfif rc.action eq 'public:register.account'>active</cfif>">
-									<a href="#buildURL('public:register.account')#"><i class="icon-home"></i> Register Account</a>
-								</li>
-								<li class="<cfif rc.action eq 'public:main.forgotpassword'>active</cfif>">
-									<a href="#buildURL('public:main.forgotpassword')#"><i class="icon-leaf"></i> Forgot Password</a>
-								</li>
+								<cfif Session.Mura.IsLoggedIn EQ True>
+									<li class="<cfif rc.action eq 'public:main.login'>active</cfif>">
+										<a href="/index.cfm/auction-site/?doaction=logout"><i class="icon-home"></i> Account Logout</a>
+									</li>
+									<li class="<cfif rc.action eq 'public:main.login'>active</cfif>">
+										<a href="?display=login"><i class="icon-home"></i> Manage Profile</a>
+									</li>
+								<cfelse>
+									<li class="<cfif rc.action eq 'public:main.login'>active</cfif>">
+										<a href="?display=login"><i class="icon-home"></i> Account Login</a>
+									</li>
+									<li class="<cfif rc.action eq 'public:register.account'>active</cfif>">
+										<a href="#buildURL('public:register.account')#"><i class="icon-home"></i> Register Account</a>
+									</li>
+									<li class="<cfif rc.action eq 'public:main.forgotpassword'>active</cfif>">
+										<a href="#buildURL('public:main.forgotpassword')#"><i class="icon-leaf"></i> Forgot Password</a>
+									</li>
+								</cfif>
+
 							</ul>
 						</li>
 					</ul>
