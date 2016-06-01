@@ -68,15 +68,35 @@
 					<div class="panel-heading"><h2>Your Contact Information</h2></div>
 					<div class="form-group">
 						<label for="YourFirstName" class="control-label col-sm-2">First Name:&nbsp;</label>
-						<div class="col-sm-9"><cfinput type="text" class="form-control" id="ContactFirstName" name="ContactFirstName" required="yes" placeholder="Enter Your Name"></div>
+						<div class="col-sm-9">
+							<cfif Session.Mura.IsLoggedIn EQ true>
+								<cfinput type="text" class="form-control" value="#Session.Mura.FName#" id="ContactFirstName" name="ContactFirstName" required="yes" placeholder="Enter Your Name" disabled="true">
+							<cfelse>
+								<cfinput type="text" class="form-control" id="ContactFirstName" name="ContactFirstName" required="yes" placeholder="Enter Your Name">
+							</cfif>
+						</div>
 					</div>
 					<div class="form-group">
 						<label for="YourLastName" class="control-label col-sm-2">Last Name:&nbsp;</label>
-						<div class="col-sm-9"><cfinput type="text" class="form-control" id="ContactLastName" name="ContactLastName" required="yes" placeholder="Enter Your Name"></div>
+						<div class="col-sm-9">
+							<cfif Session.Mura.IsLoggedIn EQ True>
+								<cfinput type="text" class="form-control" value="#Session.Mura.LName#" id="ContactLastName" name="ContactLastName" required="yes" placeholder="Enter Your Name" disabled="true">
+							<cfelse>
+								<cfinput type="text" class="form-control" id="ContactLastName" name="ContactLastName" required="yes" placeholder="Enter Your Name">
+							</cfif>
+						</div>
 					</div>
 					<div class="form-group">
 						<label for="YourEmail" class="control-label col-sm-2">Your Email:&nbsp;</label>
-						<div class="col-sm-9"><cfinput type="text" class="form-control" id="ContactEmail" name="ContactEmail" required="yes" placeholder="Enter Your Name"></div>
+						<div class="col-sm-9">
+							<cfif Session.Mura.IsLoggedIn EQ True>
+								<cfinput type="text" class="form-control" value="#Session.Mura.Email#" id="ContactEmail" name="ContactEmail" required="yes" placeholder="Enter Your Name" disabled="true">
+							<cfelse>
+								<cfinput type="text" class="form-control" id="ContactEmail" name="ContactEmail" required="yes" placeholder="Enter Your Name">
+							</cfif>
+
+
+						</div>
 					</div>
 					<div class="form-group">
 						<label for="YourTelephone" class="control-label col-sm-2">Your Phone:&nbsp;</label>
