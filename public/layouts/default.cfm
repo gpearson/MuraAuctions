@@ -12,7 +12,7 @@
 							<a class="dropdown-toggle" data-toggle="dropdown" href="#buildURL('public:main')#">Home <span class="caret"></span></a>
 							<ul class="dropdown-menu">
 								<li class="<cfif rc.action eq 'public:main.login'>active</cfif>">
-									<a href="#buildURL('public:main.login')#"><i class="icon-home"></i> Account Login</a>
+									<a href="?display=login"><i class="icon-home"></i> Account Login</a>
 								</li>
 								<li class="<cfif rc.action eq 'public:register.account'>active</cfif>">
 									<a href="#buildURL('public:register.account')#"><i class="icon-home"></i> Register Account</a>
