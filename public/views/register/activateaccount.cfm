@@ -7,9 +7,9 @@
 	<cfset SendEmailCFC = createObject("component","plugins/#HTMLEditFormat(rc.pc.getPackage())#/library/components/EmailServices")>
 
 	<cfquery name="getUserAccount" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
-		Select Fname, Lname, UserName, Email, created
-		From tusers
-		Where UserID = <cfqueryparam value="#ListLast(Variables.UserID, '=')#" cfsqltype="cf_sql_varchar">
+		Select tusers.Fname, tusers.Lname, tusers.Email, tusers.InActive, tusers.SiteID, p_Auction_UserMatrix.AccountType, p_Auction_UserMatrix.ZipCode, p_Auction_UserMatrix.TelephoneNumber
+		From tusers INNER JOIN p_Auction_UserMatrix ON p_Auction_UserMatrix.User_ID = tusers.UserID
+		Where tusers.UserID = <cfqueryparam value="#ListLast(Variables.UserID, '=')#" cfsqltype="cf_sql_varchar">
 	</cfquery>
 
 	<cfif DateDiff("n", ListLast(Variables.DateSentCreated, '='), Now()) LTE 45>
@@ -24,21 +24,39 @@
 				<cfdump var="#cfcatch#">
 			</cfcatch>
 		</cftry>
-		<cfoutput>
-			<div class="panel panel-default">
-				<div class="panel-heading"><h1>Account Activated</h1></div>
-				<div class="panel-body">
-					<div class="alert alert-success">
-						You have successfully activated your account on this website. You will be receiving an email about this for your records. You can now login to this site with your email address and provided password.
+		<cfswitch expression="#getUserAccount.AccountType#">
+			<cfcase value="1">
+				<cfoutput>
+					<div class="panel panel-default">
+						<div class="panel-heading"><h1>Account Activated</h1></div>
+						<div class="panel-body">
+							<div class="alert alert-success">
+								You have successfully activated your account on this website. You will be receiving an email about this for your records. You can now login to this site with your email address and provided password.
+							</div>
+						</div>
 					</div>
-				</div>
-			</div>
-		</cfoutput>
-		<cfset SendActivationEmailConfirmation = #SendEmailCFC.SendAccountActivationEmailConfirmation(rc, ListLast(Variables.UserID, '='))#>
+				</cfoutput>
+				<cfset SendActivationEmailConfirmation = #SendEmailCFC.SendBuyerAccountActivationEmailConfirmation(rc, ListLast(Variables.UserID, '='))#>
+			</cfcase>
+			<cfcase value="0">
+				<cfoutput>
+					<div class="panel panel-default">
+						<div class="panel-heading"><h1>Account Email Verified</h1></div>
+						<div class="panel-body">
+							<div class="alert alert-success">
+								You have successfully verified your email address on this website. The system is in the process of generating the service contract for you. You will need to Print, Sign and send this service contract back to us in order for your account to be fully activated. Once your account is fully activated, you will receive an email stating this. At the time you receive this last email you will be able to post items for sale.
+							</div>
+						</div>
+					</div>
+				</cfoutput>
+				<cfset SendActivationEmailConfirmation = #SendEmailCFC.SendSellerAccountActivationEmailConfirmation(rc, ListLast(Variables.UserID, '='))#>
+				<cfset SendSellerContractEmail = #SendEmailCFC.SendSellerAccountContractEmail(rc, ListLast(Variables.UserID, '='))#>
+			</cfcase>
+		</cfswitch>
 	<cfelse>
 		<cfoutput>
 			<div class="panel panel-default">
-				<div class="panel-heading"><h1>Account Activated</h1></div>
+				<div class="panel-heading"><h1>Account Not Activated</h1></div>
 				<div class="panel-body">
 					<div class="alert alert-danger">
 						Your account is not activated due to the Expiration of the Key which was in the activation email when you created your account. Please use the Contact Us Form on the main page so we can manually activate your account.
