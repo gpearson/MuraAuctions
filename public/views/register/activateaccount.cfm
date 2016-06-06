@@ -39,18 +39,39 @@
 				<cfset SendActivationEmailConfirmation = #SendEmailCFC.SendBuyerAccountActivationEmailConfirmation(rc, ListLast(Variables.UserID, '='))#>
 			</cfcase>
 			<cfcase value="0">
-				<cfoutput>
-					<div class="panel panel-default">
-						<div class="panel-heading"><h1>Account Email Verified</h1></div>
-						<div class="panel-body">
-							<div class="alert alert-success">
-								You have successfully verified your email address on this website. The system is in the process of generating the service contract for you. You will need to Print, Sign and send this service contract back to us in order for your account to be fully activated. Once your account is fully activated, you will receive an email stating this. At the time you receive this last email you will be able to post items for sale.
+				<cfquery name="CheckOrganizationInformation" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+					Select Organization_ID
+					from p_Auction_UserMatrix
+					Where User_ID = <cfqueryparam value="#ListLast(Variables.UserID, '=')#" cfsqltype="cf_sql_varchar">
+				</cfquery>
+
+				<cfif Len(CheckOrganizationInformation.Organization_ID)>
+					<cfoutput>
+						<div class="panel panel-default">
+							<div class="panel-heading"><h1>Account Email Verified</h1></div>
+							<div class="panel-body">
+								<div class="alert alert-success">
+									You have successfully verified your email address on this website. The system is in the process of generating the service contract for you. You will need to Print, Sign and send this service contract back to us in order for your account to be fully activated. Once your account is fully activated, you will receive an email stating this. At the time you receive this last email you will be able to post items for sale.
+								</div>
 							</div>
 						</div>
-					</div>
-				</cfoutput>
-				<cfset SendActivationEmailConfirmation = #SendEmailCFC.SendSellerAccountActivationEmailConfirmation(rc, ListLast(Variables.UserID, '='))#>
-				<cfset SendSellerContractEmail = #SendEmailCFC.SendSellerAccountContractEmail(rc, ListLast(Variables.UserID, '='))#>
+					</cfoutput>
+					<cfset SendActivationEmailConfirmation = #SendEmailCFC.SendSellerAccountActivationEmailConfirmation(rc, ListLast(Variables.UserID, '='))#>
+					<cfset SendSellerContractEmail = #SendEmailCFC.SendSellerAccountContractEmail(rc, ListLast(Variables.UserID, '='))#>
+				<cfelse>
+					<cfoutput>
+						<div class="panel panel-default">
+							<div class="panel-heading"><h1>Account Email Verified</h1></div>
+							<div class="panel-body">
+								<div class="alert alert-success">
+									You have successfully verified your email address on this website. We are in need of the organization information before we can continue with your seller's account.We are in the process of sending you an email with a request to complete the Organization Information to your email address.
+								</div>
+							</div>
+						</div>
+					</cfoutput>
+					<cfset SendActivationEmailConfirmation = #SendEmailCFC.SendSellerAccountActivationEmailConfirmation(rc, ListLast(Variables.UserID, '='))#>
+					<cfset SendSellerAccountNeedOrganizationInfoEmail = #SendEmailCFC.SendSellerAccountOrganizationInfoEmail(rc, ListLast(Variables.UserID, '='))#>
+				</cfif>
 			</cfcase>
 		</cfswitch>
 	<cfelse>

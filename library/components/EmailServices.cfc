@@ -52,9 +52,24 @@
 		<cfset ValueToEncrypt = "UserID=" & #Arguments.UserID# & "&" & "Created=" & #getUserAccount.created# & "&DateSent=" & #Now()#>
 		<cfset EncryptedValue = #Tobase64(Variables.ValueToEncrypt)#>
 		<cfset AccountVars = "Key=" & #Variables.EncryptedValue#>
-		<cfset AccountActiveLink = "http://" & #CGI.Server_Name# & "#CGI.Script_name##CGI.path_info#?MuraAuctionsaction=public:register.activateaccount&" & #Variables.AccountVars#>
+		<cfset AccountActiveLink = "http://" & #CGI.Server_Name# & "#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.activateaccount&" & #Variables.AccountVars#>
 
 		<cfinclude template="EmailTemplates/SendSellerAccountActivationEmailToIndividual.cfm">
+	</cffunction>
+
+	<cffunction name="SendSellerAccountOrganizationInfoEmail" returntype="Any" Output="false">
+		<cfargument name="rc" type="struct" Required="True">
+		<cfargument name="UserID" type="String" Required="True">
+
+		<cfquery name="getUserAccount" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+			Select Fname, Lname, UserName, Email, created
+			From tusers
+			Where UserID = <cfqueryparam value="#Arguments.UserID#" cfsqltype="cf_sql_varchar">
+		</cfquery>
+
+		<cfset AccountActiveLink = "http://" & #CGI.Server_Name# & "#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.default&UserAction=AccountCreated&AccountType=Seller&Successful=True&User=#Arguments.UserID#">
+
+		<cfinclude template="EmailTemplates/SendSellerAccountOrganizationInfoToIndividual.cfm">
 	</cffunction>
 
 	<cffunction name="SendSellerAccountContractEmail" returntype="Any" Output="False">
@@ -76,36 +91,40 @@
 				tusers.SiteID = <cfqueryparam value="#rc.$.siteConfig('siteID')#" cfsqltype="cf_sql_varchar">
 		</cfquery>
 
-		<cfset RTFFile = FileRead(Variables.ContractMasterTemplate)>
-		<cfset RTFFile = Replace(RTFFile,"%DayOfMonth%", DateFormat(Now(), "dd"))>
-		<cfset RTFFile = Replace(RTFFile,"%Month%", DateFormat(Now(), "mmmm"))>
-		<cfset RTFFile = Replace(RTFFile,"%Year%", DateFormat(Now(), "yyyy"))>
-		<cfset RTFFile = Replace(RTFFile,"%ClientName%", getUserAccount.BusinessName)>
-		<cfset RTFFile = Replace(RTFFile,"%PhysicalAddress%", getUserAccount.PhysicalAddress)>
-		<cfset RTFFile = Replace(RTFFile,"%PhysicalCity%", getUserAccount.PhysicalCity)>
-		<cfset RTFFile = Replace(RTFFile,"%PhysicalState%", getUserAccount.PhysicalState)>
-		<cfset RTFFile = Replace(RTFFile,"%PhysicalZipCode%", getUserAccount.PhysicalZipCode)>
-		<cffile action="write" file="#Variables.CompletedContractFile#" output="#Variables.RTFFile#">
-		<cfscript>
-			// create editor objects used for the conversion
-			fis = createObject("java", "java.io.FileInputStream").init( CompletedContractFile );
-			rtfEditor = createObject("java", "javax.swing.text.rtf.RTFEditorKit");
-			htmlEditor = createObject("java", "javax.swing.text.html.HTMLEditorKit");
+		<cfif getUserAccount.RecordCount>
+			<cfset RTFFile = FileRead(Variables.ContractMasterTemplate)>
+			<cfset RTFFile = Replace(RTFFile,"%DayOfMonth%", DateFormat(Now(), "dd"))>
+			<cfset RTFFile = Replace(RTFFile,"%Month%", DateFormat(Now(), "mmmm"))>
+			<cfset RTFFile = Replace(RTFFile,"%Year%", DateFormat(Now(), "yyyy"))>
+			<cfset RTFFile = Replace(RTFFile,"%ClientName%", getUserAccount.BusinessName)>
+			<cfset RTFFile = Replace(RTFFile,"%PhysicalAddress%", getUserAccount.PhysicalAddress)>
+			<cfset RTFFile = Replace(RTFFile,"%PhysicalCity%", getUserAccount.PhysicalCity)>
+			<cfset RTFFile = Replace(RTFFile,"%PhysicalState%", getUserAccount.PhysicalState)>
+			<cfset RTFFile = Replace(RTFFile,"%PhysicalZipCode%", getUserAccount.PhysicalZipCode)>
+			<cffile action="write" file="#Variables.CompletedContractFile#" output="#Variables.RTFFile#">
+			<cfscript>
+				// create editor objects used for the conversion
+				fis = createObject("java", "java.io.FileInputStream").init( CompletedContractFile );
+				rtfEditor = createObject("java", "javax.swing.text.rtf.RTFEditorKit");
+				htmlEditor = createObject("java", "javax.swing.text.html.HTMLEditorKit");
 
-			// create a default document and load the rtf file
-			document = rtfEditor.createDefaultDocument();
-			rtfEditor.read(fis, document, 0);
+				// create a default document and load the rtf file
+				document = rtfEditor.createDefaultDocument();
+				rtfEditor.read(fis, document, 0);
 
-			// convert the document to html
-			stringWriter = createObject("java", "java.io.StringWriter").init( document.getLength() );
-			htmlEditor.write(stringWriter, document, 0, document.getLength());
+				// convert the document to html
+				stringWriter = createObject("java", "java.io.StringWriter").init( document.getLength() );
+				htmlEditor.write(stringWriter, document, 0, document.getLength());
 
-			// get the html content as a string
-			htmlOutput = stringWriter.getBuffer().toString();
-		</cfscript>
+				// get the html content as a string
+				htmlOutput = stringWriter.getBuffer().toString();
+			</cfscript>
 
-		<cfoutput><cfdocument format="pdf" filename="#CompletedContractPDFFile#" overwrite="true">#htmlOutput#</cfdocument></cfoutput>
-		<cfinclude template="EmailTemplates/SendSellerContractForSignature.cfm">
+			<cfoutput><cfdocument format="pdf" filename="#CompletedContractPDFFile#" overwrite="true">#htmlOutput#</cfdocument></cfoutput>
+			<cfinclude template="EmailTemplates/SendSellerContractForSignature.cfm">
+		</cfif>
+
+
 	</cffunction>
 
 	<cffunction name="SendBuyerAccountActivationEmailConfirmation" ReturnType="Any" Output="False">

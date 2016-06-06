@@ -51,9 +51,6 @@
 						<li class="<cfif rc.action contains 'siteadmin:license'>active</cfif>">
 							<a href="#buildURL('siteadmin:license')#">License</a>
 						</li>
-						<li class="<cfif rc.action contains 'siteadmin:contactus'>active</cfif>">
-							<a href="#buildURL('siteadmin:contactus.sendfeedback')#">Contact Us</a>
-						</li>
 					</ul>
 				</div>
 			</nav>
