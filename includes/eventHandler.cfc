@@ -24,7 +24,7 @@ component persistent="false" accessors="true" output="false" extends="mura.plugi
 		// register this file as a Mura eventHandler
 		variables.pluginConfig.addEventHandler(this);
 	}
-	
+
 	public void function onSiteRequestStart(required struct $) {
 		// make the methods in displayObjects.cfc accessible via $.packageName.methodName()
 		arguments.$.setCustomMuraScopeKey(variables.framework.package, new displayObjects());

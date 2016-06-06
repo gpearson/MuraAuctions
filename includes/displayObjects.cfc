@@ -37,8 +37,12 @@ component persistent="false" accessors="true" output="false" extends="mura.plugi
 			in the file located at /includes/fw1config.cfm
 	*/
 
-	public any function AuctionPublicView($) {
+	public any function dspAuctionPublicView($) {
 		return getApplication().doAction('public:main.default');
+	}
+
+	public any function dspAuctionSiteAdminView($) {
+		return getApplication().doAction('siteadmin:main.default');
 	}
 	/*
 	public any function dspMuraFW1App1($) {

@@ -50,7 +50,7 @@
 						<div class="col-sm-8"><cfinput type="text" class="form-control" id="YourZipCode" name="YourZipCode" required="yes"></div>
 					</div>
 					<br /><br />
-					<div class="panel-heading"><h2>Type of Account Inquiry</h2></div>
+					<div class="panel-heading"><h2>Type of Account</h2></div>
 					<div class="well">Seller accounts are for Public/Private School Districts, College/Universities, Non-Profit Organizations, and Government Organizations. Seller Accounts must sign a service contract that will be sent to the email address used on this form before the account is activated in the system.</div>
 					<div class="form-group">
 						<label for="AccountType" class="control-label col-sm-3">Account Type:&nbsp;</label>

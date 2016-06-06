@@ -34,9 +34,6 @@
 						</li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
-						<li class="<cfif rc.action contains 'public:license'>active</cfif>">
-							<a href="#buildURL('public:license')#"><i class="icon-book"></i> License</a>
-						</li>
 						<li class="<cfif rc.action contains 'public:contactus'>active</cfif>">
 							<a href="#buildURL('public:contactus.sendfeedback')#"><i class="icon-info-sign"></i> Contact Us</a>
 						</li>

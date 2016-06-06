@@ -23,7 +23,7 @@
 						arrayAppend(Session.FormErrors, errormsg);
 					</cfscript>
 				</cflock>
-				<cflocation addtoken="true" url="/index.cfm/auction-site/index.cfm?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.default&FormRetry=True">
+				<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.default&FormRetry=True">
 			</cfif>
 
 			<cfset AddressGeoCoded = #GeoCodeAddress(Form.PhysicalAddress, FORM.PhysicalCity, FORM.PhysicalState, FORM.PhysicalZipCode)#>
@@ -35,7 +35,7 @@
 						arrayAppend(Session.FormErrors, address);
 					</cfscript>
 				</cflock>
-				<cflocation url="/index.cfm/auction-site/index.cfm?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.default&FormRetry=True&ReEnterAddress=True">
+				<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.default&FormRetry=True&ReEnterAddress=True">
 			<cfelse>
 				<cfset CombinedPhysicalAddress = #AddressGeoCoded[1].AddressStreetNumber# & " " & #AddressGeoCoded[1].AddressStreetNameShort#>
 
@@ -90,7 +90,7 @@
 				</cfquery>
 				<cfset SendEmailCFC = createObject("component","plugins/#HTMLEditFormat(rc.pc.getPackage())#/library/components/EmailServices")>
 				<cfset SendContactEmail = #SendEmailCFC.SendSellerAccountContractEmail(rc, FORM.UserID)#>
-				<cflocation url="/index.cfm/auction-site/?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.default&UserAction=OrganizationInfoCreated&AccountType=Seller&Successful=True">
+				<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.default&UserAction=OrganizationInfoCreated&AccountType=Seller&Successful=True">
 			</cfif>
 		</cfif>
 	</cffunction>
@@ -117,7 +117,7 @@
 						arrayAppend(Session.FormErrors, errormsg);
 					</cfscript>
 				</cflock>
-				<cflocation addtoken="true" url="/index.cfm/auction-site/index.cfm?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.account&FormRetry=True">
+				<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.account&FormRetry=True">
 			</cfif>
 
 			<cfif FORM.YourDesiredPassword NEQ FORM.VerifyDesiredPassword>
@@ -127,7 +127,7 @@
 						arrayAppend(Session.FormErrors, errormsg);
 					</cfscript>
 				</cflock>
-				<cflocation addtoken="true" url="/index.cfm/auction-site/index.cfm?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.account&FormRetry=True">
+				<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.account&FormRetry=True">
 			</cfif>
 
 			<cfif not isValid("email", FORM.ContactEmail)>
@@ -137,7 +137,7 @@
 						arrayAppend(Session.FormErrors, errormsg);
 					</cfscript>
 				</cflock>
-				<cflocation addtoken="true" url="/index.cfm/auction-site/index.cfm?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.account&FormRetry=True">
+				<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.account&FormRetry=True">
 			</cfif>
 
 			<cfif not isValid("telephone", FORM.ContactPhone)>
@@ -147,7 +147,7 @@
 						arrayAppend(Session.FormErrors, errormsg);
 					</cfscript>
 				</cflock>
-				<cflocation addtoken="true" url="/index.cfm/auction-site/index.cfm?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.account&FormRetry=True">
+				<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.account&FormRetry=True">
 			</cfif>
 
 			<cfif not isValid("zipcode", FORM.YourZipCode)>
@@ -157,7 +157,7 @@
 						arrayAppend(Session.FormErrors, errormsg);
 					</cfscript>
 				</cflock>
-				<cflocation addtoken="true" url="/index.cfm/auction-site/index.cfm?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.account&FormRetry=True">
+				<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.account&FormRetry=True">
 			</cfif>
 
 			<!--- Initiates the User Bean --->
@@ -176,7 +176,7 @@
 					UsernameExists = {property="UserName",message="The Email Address already exists within the database as the Username to your account. If this Email Address is your account, you can request a forgot password by clicking on the Forgot Password Link under the Home Navigation Menu at the top of this screen. Otherwise please enter a different email address so your account can be created."};
 					arrayAppend(Session.FormErrors, UsernameExists);
 				</cfscript>
-				<cflocation url="/index.cfm/auction-site/?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.account&FormRetry=True">
+				<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.account&FormRetry=True">
 			<cfelse>
 				<cfset AddNewAccount = #Application.userManager.save(NewUser)#>
 
@@ -200,12 +200,12 @@
 						<cfcase value="1">
 							<!--- This Account Type is Buyers --->
 							<cfset SendActivationEmail = #SendEmailCFC.SendBuyerAccountActivationEmail(rc, Variables.NewUserID)#>
-							<cflocation url="/index.cfm/auction-site/?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.default&UserAction=AccountCreated&Successful=True">
+							<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.default&UserAction=AccountCreated&Successful=True">
 						</cfcase>
 						<cfcase value="0">
 							<!--- This Account Type is Sellers --->
 							<cfset SendActivationEmail = #SendEmailCFC.SendSellerAccountActivationEmail(rc, Variables.NewUserID)#>
-							<cflocation url="/index.cfm/auction-site/?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.default&UserAction=AccountCreated&AccountType=Seller&Successful=True&User=#Variables.NewUserID#">
+							<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.default&UserAction=AccountCreated&AccountType=Seller&Successful=True&User=#Variables.NewUserID#">
 						</cfcase>
 					</cfswitch>
 

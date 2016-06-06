@@ -152,8 +152,14 @@ http://www.apache.org/licenses/LICENSE-2.0
 			<displayobject
 					name="Public Auction Site"
 					component="includes.displayObjects"
-					displaymethod="AuctionPublicView"
+					displaymethod="dspAuctionPublicView"
 					persist="false" />
+
+			<displayobject
+					name="Auction Site Admin"
+					component="includes.displayObjects"
+					displaymethod="dspAuctionSiteAdminView"
+					persist="fasle" />
 
 			<!---
 			<!-- An uber simple display object, has nothing to do with FW/1 -->

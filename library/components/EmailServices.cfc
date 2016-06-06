@@ -33,7 +33,7 @@
 		<cfset ValueToEncrypt = "UserID=" & #Arguments.UserID# & "&" & "Created=" & #getUserAccount.created# & "&DateSent=" & #Now()#>
 		<cfset EncryptedValue = #Tobase64(Variables.ValueToEncrypt)#>
 		<cfset AccountVars = "Key=" & #Variables.EncryptedValue#>
-		<cfset AccountActiveLink = "http://" & #CGI.Server_Name# & "/index.cfm/auction-site/?MuraAuctionsaction=public:register.activateaccount&" & #Variables.AccountVars#>
+		<cfset AccountActiveLink = "http://" & #CGI.Server_Name# & "#CGI.Script_name##CGI.path_info#?#rc.pc.getPackage()#action=public:register.activateaccount&" & #Variables.AccountVars#>
 
 		<cfinclude template="EmailTemplates/SendBuyerAccountActivationEmailToIndividual.cfm">
 	</cffunction>
@@ -52,7 +52,7 @@
 		<cfset ValueToEncrypt = "UserID=" & #Arguments.UserID# & "&" & "Created=" & #getUserAccount.created# & "&DateSent=" & #Now()#>
 		<cfset EncryptedValue = #Tobase64(Variables.ValueToEncrypt)#>
 		<cfset AccountVars = "Key=" & #Variables.EncryptedValue#>
-		<cfset AccountActiveLink = "http://" & #CGI.Server_Name# & "/index.cfm/auction-site/?MuraAuctionsaction=public:register.activateaccount&" & #Variables.AccountVars#>
+		<cfset AccountActiveLink = "http://" & #CGI.Server_Name# & "#CGI.Script_name##CGI.path_info#?MuraAuctionsaction=public:register.activateaccount&" & #Variables.AccountVars#>
 
 		<cfinclude template="EmailTemplates/SendSellerAccountActivationEmailToIndividual.cfm">
 	</cffunction>

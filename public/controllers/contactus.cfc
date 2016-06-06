@@ -23,7 +23,7 @@
 						arrayAppend(Session.FormErrors, errormsg);
 					</cfscript>
 				</cflock>
-				<cflocation addtoken="true" url="/plugins/#HTMLEditFormat(rc.pc.getPackage())#/index.cfm?#HTMLEditFormat(rc.pc.getPackage())#action=public:contactus.sendfeedback&FormRetry=True">
+				<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:contactus.sendfeedback&FormRetry=True">
 			</cfif>
 
 			<cfif FORM.BestContactMethod EQ 0>
@@ -34,7 +34,7 @@
 							arrayAppend(Session.FormErrors, errormsg);
 						</cfscript>
 					</cflock>
-					<cflocation addtoken="true" url="/plugins/#HTMLEditFormat(rc.pc.getPackage())#/index.cfm?#HTMLEditFormat(rc.pc.getPackage())#action=public:contactus.sendfeedback&FormRetry=True">
+					<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:contactus.sendfeedback&FormRetry=True">
 				</cfif>
 			<cfelseif FORM.BestContactMethod EQ 1>
 				<cfif Len(FORM.ContactPhone) LTE 7>
@@ -44,7 +44,7 @@
 							arrayAppend(Session.FormErrors, errormsg);
 						</cfscript>
 					</cflock>
-					<cflocation addtoken="true" url="/plugins/#HTMLEditFormat(rc.pc.getPackage())#/index.cfm?#HTMLEditFormat(rc.pc.getPackage())#action=public:contactus.sendfeedback&FormRetry=True">
+					<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:contactus.sendfeedback&FormRetry=True">
 				</cfif>
 				<cfif not isValid("telephone", FORM.ContactPhone)>
 					<cflock timeout="60" scope="SESSION" type="Exclusive">
@@ -53,12 +53,12 @@
 							arrayAppend(Session.FormErrors, errormsg);
 						</cfscript>
 					</cflock>
-					<cflocation addtoken="true" url="/plugins/#HTMLEditFormat(rc.pc.getPackage())#/index.cfm?#HTMLEditFormat(rc.pc.getPackage())#action=public:contactus.sendfeedback&FormRetry=True">
+					<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:contactus.sendfeedback&FormRetry=True">
 				</cfif>
 			</cfif>
 			<cfset SendEmailCFC = createObject("component","plugins/#HTMLEditFormat(rc.pc.getPackage())#/library/components/EmailServices")>
 			<cfset temp = #SendEmailCFC.SendCommentInquiryToAdministrators(rc, Session.FormData)#>
-			<cflocation addtoken="true" url="/index.cfm/auction-site/?#HTMLEditFormat(rc.pc.getPackage())#action=public:contactus.default&SentInquiry=true">
+			<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:contactus.default&SentInquiry=true">
 		</cfif>
 	</cffunction>
 

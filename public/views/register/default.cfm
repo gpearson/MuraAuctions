@@ -96,14 +96,14 @@
 		</div>
 	<cfelseif isDefined("URL.UserAction") and not isDefined("URL.AccountType")>
 		<div class="panel panel-default">
-			<div class="panel-heading"><h1>Account Information</h1></div>
+			<div class="panel-heading"><h1>Check Email to Verify Email Address</h1></div>
 			<div class="panel-body">
 				<cfswitch expression="#URL.UserAction#">
 					<cfcase value="AccountCreated">
 						<cfif isDefined("URL.Successful")>
 							<cfif URL.Successful EQ "true">
 								<div class="alert alert-success">
-									You have successfully created an account. You will be receiving an email with a link to click on that will activate your account.
+									You have successfully created an account. You will be receiving an email with a link to click on is being sent to the entered email address within the next few minutes. You will not be able to login to this website until your account has been activated.
 								</div>
 							<cfelse>
 								<div class="alert alert-danger">
