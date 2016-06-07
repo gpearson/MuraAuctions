@@ -388,6 +388,258 @@ http://www.apache.org/licenses/LICENSE-2.0
 		</cfif>
 	</cffunction>
 
+	<cffunction name="edituser" returntype="any" output="false">
+		<cfargument name="rc" required="true" type="struct" default="#StructNew()#">
+
+		<cfif not isDefined("FORM.formSubmit") and isDefined("URL.UserID")>
+			<cflock timeout="60" scope="Session" type="Exclusive">
+				<cfif not isDefined("Session.FormErrors")>
+					<cfset Session.FormErrors = #ArrayNew()#>
+				</cfif>
+				<cfquery name="Session.getSelectedUser" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+					Select tusers.UserID, tusers.Fname, tusers.Lname, tusers.UserName, tusers.Email, tusers.InActive, tusers.SiteID, tusers.LastLogin, p_Auction_UserMatrix.AccountType, p_Auction_UserMatrix.ZipCode, p_Auction_UserMatrix.TelephoneNumber
+					From tusers INNER JOIN p_Auction_UserMatrix ON p_Auction_UserMatrix.User_ID = tusers.UserID
+					Where tusers.SiteID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.siteConfig('siteID')#"> and
+						tusers.UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#URL.UserID#">
+				</cfquery>
+				<cfquery name="Session.getSelectedUserSecurityRole" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+					Select tusersmemb.GroupID, tGroupName.GroupName, tusers.UserID, tusers.Fname, tusers.Lname, tusers.SiteID
+					From tusers INNER JOIN tusersmemb on tusersmemb.UserID = tusers.UserID
+						INNER JOIN tusers as tGroupName on tGroupName.UserID = tusersmemb.GroupID
+					Where tusers.SiteID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.siteConfig('siteID')#"> and
+						tusers.UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#URL.UserID#">
+				</cfquery>
+
+				<cfquery name="Session.getSecurityRoles" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+					Select UserID, GroupName
+					From tusers
+					Where GroupName is not null and GroupName <> 'Admin'
+				</cfquery>
+			</cflock>
+		<cfelseif not isDefined("FORM.formSubmit") and not isDefined("FORM.UserID")>
+			<!--- Username already exists within the database. --->
+			<cfscript>
+				UsernameExists = {property="UserName",message="A user Record was not selected from the Grid to update. Please select User before clicking an option icon"};
+				arrayAppend(Session.FormErrors, UsernameExists);
+			</cfscript>
+			<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=siteadmin:settings.edituser&FormRetry=True&Successful=True">
+		<cfelseif isDefined("FORM.formSubmit") and isDefined("FORM.UserID") and isDefined("FORM.PerformAction")>
+			<cfquery name="DeleteUserAccount" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+				Delete from tusers
+				Where UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
+			</cfquery>
+
+			<cfquery name="DeleteUserAccountMembership" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+				Delete from tusersmemb
+				Where UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
+			</cfquery>
+
+			<cfquery name="DeleteUserMatrixAccount" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+				Delete from p_Auction_UserMatrix
+				Where User_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
+			</cfquery>
+			<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=siteadmin:settings.users&UserAction=UserDeleted&Successful=True">
+		<cfelse>
+			<cfset Session.FormData = #StructCopy(FORM)#>
+			<cfset Session.FormErrors = #ArrayNew()#>
+
+			<cfif LEN(FORM.DesiredPassword) EQ 0 and LEN(FORM.VerifyDesiredPassword) EQ 0>
+				<cfif isDefined("FORM.ZipCode")>
+					<cfif LEN(FORM.ZipCode)>
+						<cfif not isValid("zipcode", FORM.ZipCode)>
+							<cfscript>
+								UsernameExists = {property="UserName",message="The ZipCode did not appear to be in a United States zipcode format. Please check this value and try to submmit your corrections again for this user."};
+								arrayAppend(Session.FormErrors, UsernameExists);
+							</cfscript>
+							<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=siteadmin:settings.edituser&FormRetry=True&UserID=#FORM.UserID#">
+						<cfelse>
+							<cfquery name="updateUserAccount" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+								Update p_Auction_UserMatrix
+								Set ZipCode = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.ZipCode#">,
+									lastUpdateBy = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.Fname# #Session.Mura.LName#">,
+									lastUpdated = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">
+								Where User_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
+							</cfquery>
+						</cfif>
+					</cfif>
+				</cfif>
+				<cfif isDefined("FORM.ContactNumber")>
+					<cfif LEN(FORM.ContactNumber)>
+						<cfif not isValid("telephone", FORM.ContactNumber)>
+							<cfscript>
+								UsernameExists = {property="UserName",message="The Telephone Field did not appear to be a standard United States Telephone Number. Please check the value you entered on this field"};
+								arrayAppend(Session.FormErrors, UsernameExists);
+							</cfscript>
+							<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=siteadmin:settings.edituser&FormRetry=True&UserID=#FORM.UserID#">
+						<cfelse>
+							<cfquery name="updateUserAccount" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+								Update p_Auction_UserMatrix
+								Set TelephoneNumber = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.ContactNumber#">,
+									lastUpdateBy = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.Fname# #Session.Mura.LName#">,
+									lastUpdated = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">
+								Where User_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
+							</cfquery>
+						</cfif>
+					</cfif>
+				</cfif>
+				<cfif FORM.UserSecurityRole GT 0>
+					<cfquery name="checkUserMemberships" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+						Select GroupID
+						From tusersmemb
+						Where UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
+					</cfquery>
+
+					<cfif checkUserMemberships.RecordCount>
+						<cfif checkUserMemberships.GroupID NEQ FORM.UserSecurityRole>
+							<cfquery name="updateUserMemberships" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+								update tusersmemb
+								Set GroupID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserSecurityRole#">
+								Where UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
+							</cfquery>
+						</cfif>
+					<cfelse>
+						<cfquery name="insertUserMemberships" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+							Insert into tusersmemb(UserID, GroupID)
+							Values(
+								<cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">,
+								<cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserSecurityRole#">
+							)
+						</cfquery>
+					</cfif>
+				<cfelse>
+					<cfquery name="checkUserMemberships" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+						Select GroupID
+						From tusersmemb
+						Where UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
+					</cfquery>
+					<cfif checkUserMemberships.RecordCount>
+						<cfquery name="deleteUserMemberships" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+							Delete from tusersmemb
+							Where UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
+						</cfquery>
+					</cfif>
+				</cfif>
+				<cfquery name="updateUserAccountType" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+					update p_Auction_UserMatrix
+					Set AccountType = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.TypeOfAccountRequested#">,
+						lastUpdated = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">,
+						lastUpdateBy = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.Fname# #Session.Mura.LName#">
+					Where User_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
+				</cfquery>
+				<cfquery name="updateUserAccount" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+					Update tusers
+					Set FName = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserFirstName#">,
+						LName = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserLastName#">,
+						Email = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserEmail#">,
+						InActive = <cfqueryparam cfsqltype="cf_sql_bit" value="#FORM.UserActive#">,
+						LastUpdate = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">,
+						LastUpdateBy = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.Fname# #Session.Mura.LName#">,
+						LastUpdateByID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.UserID#">
+					Where UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
+				</cfquery>
+				<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=siteadmin:settings.users&UserAction=UserUpdated&Successful=True">
+			<cfelse>
+				<cfif FORM.DesiredPassword NEQ FORM.VerifyDesiredPassword>
+					<cfscript>
+						UsernameExists = {property="UserName",message="The Password Field and the Verify Password Field did not match each other. Please correct this to update this user account."};
+						arrayAppend(Session.FormErrors, UsernameExists);
+					</cfscript>
+					<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=siteadmin:settings.edituser&FormRetry=True&UserID=#FORM.UserID#">
+				</cfif>
+				<cfif isDefined("FORM.ZipCode")>
+					<cfif not isValid("zipcode", FORM.ZipCode)>
+						<cfscript>
+							UsernameExists = {property="UserName",message="The ZipCode did not appear to be in a United States zipcode format. Please check this value and try to submmit your corrections again for this user."};
+							arrayAppend(Session.FormErrors, UsernameExists);
+						</cfscript>
+						<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=siteadmin:settings.edituser&FormRetry=True&UserID=#FORM.UserID#">
+					<cfelse>
+						<cfquery name="updateUserAccount" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+							Update p_Auction_UserMatrix
+							Set ZipCode = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.ZipCode#">,
+								lastUpdateBy = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.Fname# #Session.Mura.LName#">,
+								lastUpdated = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">
+							Where User_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
+						</cfquery>
+					</cfif>
+				</cfif>
+				<cfif isDefined("FORM.ContactNumber")>
+					<cfif not isValid("telephone", FORM.ContactNumber)>
+						<cfscript>
+							UsernameExists = {property="UserName",message="The Telephone Field did not appear to be a standard United States Telephone Number. Please check the value you entered on this field"};
+							arrayAppend(Session.FormErrors, UsernameExists);
+						</cfscript>
+						<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=siteadmin:settings.edituser&FormRetry=True&UserID=#FORM.UserID#">
+					<cfelse>
+						<cfquery name="updateUserAccount" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+							Update p_Auction_UserMatrix
+							Set TelephoneNumber = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.ContactNumber#">,
+								lastUpdateBy = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.Fname# #Session.Mura.LName#">,
+								lastUpdated = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">
+							Where User_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
+						</cfquery>
+					</cfif>
+				</cfif>
+				<cfif FORM.UserSecurityRole GT 0>
+					<cfquery name="checkUserMemberships" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+						Select GroupID
+						From tusersmemb
+						Where UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
+					</cfquery>
+
+					<cfif checkUserMemberships.RecordCount>
+						<cfif checkUserMemberships.GroupID NEQ FORM.UserSecurityRole>
+							<cfquery name="updateUserMemberships" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+								update tusersmemb
+								Set GroupID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserSecurityRole#">
+								Where UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
+							</cfquery>
+						</cfif>
+					<cfelse>
+						<cfquery name="insertUserMemberships" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+							Insert into tusersmemb(UserID, GroupID)
+							Values(
+								<cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">,
+								<cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserSecurityRole#">
+							)
+						</cfquery>
+					</cfif>
+				<cfelse>
+					<cfquery name="checkUserMemberships" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+						Select GroupID
+						From tusersmemb
+						Where UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
+					</cfquery>
+					<cfif checkUserMemberships.RecordCount>
+						<cfquery name="deleteUserMemberships" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+							Delete from tusersmemb
+							Where UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
+						</cfquery>
+					</cfif>
+				</cfif>
+				<cfquery name="updateUserAccountType" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+					update p_Auction_UserMatrix
+					Set AccountType = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.TypeOfAccountRequested#">,
+						lastUpdated = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">,
+						lastUpdateBy = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.Fname# #Session.Mura.LName#">
+					Where User_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
+				</cfquery>
+				<cfquery name="updateUserAccount" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+					Update tusers
+					Set FName = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserFirstName#">,
+						LName = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserLastName#">,
+						Email = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserEmail#">,
+						InActive = <cfqueryparam cfsqltype="cf_sql_bit" value="#FORM.UserActive#">,
+						LastUpdate = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">,
+						LastUpdateBy = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.Fname# #Session.Mura.LName#">,
+						LastUpdateByID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.UserID#">
+					Where UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
+				</cfquery>
+				<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=siteadmin:settings.users&UserAction=UserUpdated&Successful=True">
+			</cfif>
+		</cfif>
+	</cffunction>
+
 
 	<cffunction name="securitygroups" returntype="any" output="false">
 		<cfargument name="rc" required="true" type="struct" default="#StructNew()#">

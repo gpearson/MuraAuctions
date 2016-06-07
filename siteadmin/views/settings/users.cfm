@@ -30,32 +30,26 @@ http://www.apache.org/licenses/LICENSE-2.0
 							</div>
 						</cfif>
 					</cfcase>
-					<cfcase value="CategoryUpdated">
+					<cfcase value="UserUpdated">
 						<cfif URL.Successful EQ "true">
 							<div class="alert alert-success">
-								You have successfully updated a category for auction items.
+								You have successfully updated a user record in the database.
 							</div>
 						<cfelse>
 							<div class="alert alert-danger">
-								An error has occurred and the category information was not updated in the database.
+								An error has occurred and the user information was not updated in the database.
 							</div>
 						</cfif>
 					</cfcase>
-					<cfcase value="CategoryDeleted">
+					<cfcase value="UserDeleted">
 						<cfif URL.Successful EQ "true">
 							<div class="alert alert-success">
-								You have successfully deleted a category from the available auction items.
+								You have successfully deleted a user record from the database.
 							</div>
 						<cfelse>
-							<cfif isDefined("URL.CategoryHasChildren")>
-								<div class="alert alert-danger">
-									This portal is unable to delete the selected category because the category has children categories below it. In order to delete the selected category, you first must either move its children to another parent category or delete all of the children under this parent category.
-								</div>
-							<cfelse>
-								<div class="alert alert-danger">
-									An error has occurred and the category information was not deleted from the database.
-								</div>
-							</cfif>
+							<div class="alert alert-danger">
+								An error has occurred and the user information was not deleted from the database.
+							</div>
 						</cfif>
 					</cfcase>
 				</cfswitch>
@@ -126,9 +120,11 @@ http://www.apache.org/licenses/LICENSE-2.0
 					buttonicon: "glyphicon-pencil",
 					onClickButton: function(id) {
 						if (selectedRow == 0) {
-							alert("Please Select a Row to edit a Category in the database");
+							alert("Please Select a Row to edit a User in the database");
 						} else {
-							var urlToGo = "http://" + window.location.hostname + "#cgi.script_name#" + "#cgi.path_info#?#rc.pc.getPackage()#action=siteadmin:settings.edituser&UserID="+ selectedRow;
+							var grid = $('##jqGrid');
+							var userIDValue = grid.getCell(selectedRow, 'UserID');
+							var urlToGo = "http://" + window.location.hostname + "#cgi.script_name#" + "#cgi.path_info#?#rc.pc.getPackage()#action=siteadmin:settings.edituser&UserID=" + userIDValue;
 							window.open(urlToGo,"_self");
 						}
 						},
@@ -141,9 +137,11 @@ http://www.apache.org/licenses/LICENSE-2.0
 					buttonicon: "glyphicon-remove",
 					onClickButton: function(id) {
 						if (selectedRow == 0) {
-							alert("Please Select a Row to deactivate a Category in the database");
+							alert("Please Select a Row to delete a User from the database");
 						} else {
-							var urlToGo = "http://" + window.location.hostname + "#cgi.script_name#" + "#cgi.path_info#?#rc.pc.getPackage()#action=siteadmin:settings.edituser&PerformAction=DeleteUser&UserID="+ selectedRow;
+							var grid = $('##jqGrid');
+							var userIDValue = grid.getCell(selectedRow, 'UserID');
+							var urlToGo = "http://" + window.location.hostname + "#cgi.script_name#" + "#cgi.path_info#?#rc.pc.getPackage()#action=siteadmin:settings.edituser&PerformAction=DeleteUser&UserID=" + userIDValue;
 							window.open(urlToGo,"_self");
 						}
 					},
