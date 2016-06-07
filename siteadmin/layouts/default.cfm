@@ -40,8 +40,8 @@
 								<li class="<cfif rc.action eq 'siteadmin:settings.categories'>active</cfif>">
 									<a href="#buildURL('siteadmin:settings.categories')#"> Categories</a>
 								</li>
-								<li class="<cfif rc.action eq 'siteadmin:settings.securitygroups'>active</cfif>">
-									<a href="#buildURL('siteadmin:settings.securitygroups')#">Security Groups</a>
+								<li class="<cfif rc.action eq 'siteadmin:settings.sitesettings'>active</cfif>">
+									<a href="#buildURL('siteadmin:settings.sitesettings')#">Site Settings</a>
 								</li>
 								<li class="<cfif rc.action eq 'siteadmin:settings.users'>active</cfif>">
 									<a href="#buildURL('siteadmin:settings.users')#">Users</a>

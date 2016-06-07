@@ -221,6 +221,13 @@ component persistent="false" accessors="true" output="false" extends="mura.plugi
 				 abort;
 			}
 		}
+
+		var NewGroupAuctionAdmin = #application.userManager.read("")#;
+		NewGroupAuctionAdmin.setSiteID(Session.SiteID);
+		NewGroupAuctionAdmin.setGroupName("Auction Site Admin");
+		NewGroupAuctionAdmin.setType(1);
+		NewGroupAuctionAdmin.setIsPublic(1);
+		NewGroupAuctionAdminStatus = #Application.userManager.create(NewGroupAuctionAdmin)#;
 	}
 
 	public void function update() {

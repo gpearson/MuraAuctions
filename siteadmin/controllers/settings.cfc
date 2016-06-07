@@ -641,9 +641,43 @@ http://www.apache.org/licenses/LICENSE-2.0
 	</cffunction>
 
 
-	<cffunction name="securitygroups" returntype="any" output="false">
+	<cffunction name="sitesettings" returntype="any" output="false">
 		<cfargument name="rc" required="true" type="struct" default="#StructNew()#">
 
+		<cfif not isDefined("FORM.formSubmit")>
+			<cflock timeout="60" scope="Session" type="Exclusive">
+				<cfif not isDefined("Session.FormErrors")>
+					<cfset Session.FormErrors = #ArrayNew()#>
+				</cfif>
+				<cfset Session.SitePluginSettings = #StructNew()#>
+				<cfset PluginConfig = #rc.$.getBean('pluginManager').getConfig(rc.pc.getPackage())#>
+				<cfset PluginManager = #rc.$.getBean('pluginManager')#>
+				<cfset Session.SitePluginSettings.PluginConfig = #Variables.PluginConfig#>
+				<cfset Session.SitePluginSettings.PluginManager = #Variables.PluginManager#>
+				<cfset Session.SitePluginSettings.GetPluginSettings = #Variables.PluginConfig.getSettings()#>
+				<cfif StructCount(Session.SitePluginSettings.GetPluginSettings) EQ 0>
+					<cfset Session.SitePluginSettings.GetPluginSettings.ModuleID = #Variables.PluginConfig.getModuleID()#>
+					<cfset Session.SitePluginSettings.GetPluginSettings.Package = #Variables.PluginConfig.getPackage()#>
+					<cfset Session.SitePluginSettings.GetPluginSettings.PluginAlias = #Variables.PluginConfig.getName()#>
+					<cfset Session.SitePluginSettings.GetPluginSettings.LoadPriority = #Variables.PluginConfig.getLoadPriority()#>
+					<cfset Session.SitePluginSettings.GetPluginSettings.siteAssignID = "Default">
+					<cfset Session.SitePluginSettings.GetPluginSettings.SellerPercentageFee = "">
+				<cfelse>
+					<cfif not isDefined("Session.SitePluginSettings.GetPluginSettings.ModuleID")><cfset Session.SitePluginSettings.GetPluginSettings.ModuleID = #Variables.PluginConfig.getModuleID()#></cfif>
+					<cfif not isDefined("Session.SitePluginSettings.GetPluginSettings.Package")><cfset Session.SitePluginSettings.GetPluginSettings.Package = #Variables.PluginConfig.getPackage()#></cfif>
+					<cfif not isDefined("Session.SitePluginSettings.GetPluginSettings.PluginAlias")><cfset Session.SitePluginSettings.GetPluginSettings.PluginAlias = #Variables.PluginConfig.getName()#></cfif>
+					<cfif not isDefined("Session.SitePluginSettings.GetPluginSettings.LoadPriority")><cfset Session.SitePluginSettings.GetPluginSettings.LoadPriority = #Variables.PluginConfig.getLoadPriority()#></cfif>
+					<cfif not isDefined("Session.SitePluginSettings.GetPluginSettings.siteAssignID")><cfset Session.SitePluginSettings.GetPluginSettings.siteAssignID = "Default"></cfif>
+				</cfif>
+				<cfset Session.SitePluginSettings.PluginModuleID = #Variables.PluginConfig.getModuleID()#>
+			</cflock>
+		<cfelse>
+			<cfset PluginConfig = #rc.$.getBean('pluginManager').getConfig(rc.pc.getPackage())#>
+			<cfset PluginManager = #rc.$.getBean('pluginManager')#>
+			<cfset temp = #Variables.PluginConfig.setSetting('SellerPercentageFee', FORM.SellerPercentageFee)#>
+			<!--- <cfset temp = #Variables.PluginManager.UpdateSettings(Session.SitePluginSettings.GetPluginSettings)#> --->
+			<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=siteadmin:main.default">
+		</cfif>
 
 	</cffunction>
 
