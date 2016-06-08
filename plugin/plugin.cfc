@@ -222,12 +222,80 @@ component persistent="false" accessors="true" output="false" extends="mura.plugi
 			}
 		}
 
+		var dbCheckTables = new query();
+		dbCheckTables.setDatasource("#application.configBean.getDatasource()#");
+		dbCheckTables.setSQL("Show Tables LIKE 'p_Auction_SiteConfig'");
+		var dbCheckTablesResults = dbCheckTables.execute();
+
+		if (dbCheckTablesResults.getResult().recordcount eq 0) {
+			// Since the Database Table does not exists, Lets Create it
+			var dbCreateTable = new query();
+			dbCreateTable.setDatasource("#application.configBean.getDatasource()#");
+			dbCreateTable.setSQL("CREATE TABLE `p_Auction_SiteConfig` ( `TContent_ID` int(11) NOT NULL AUTO_INCREMENT, `Site_ID` tinytext NOT NULL, `DateCreated` datetime NOT NULL, `lastUpdateBy` varchar(35) NOT NULL, `lastUpdated` datetime NOT NULL, `SellerPercentageFee` decimal(7,3) DEFAULT NULL, PRIMARY KEY (`TContent_ID`) ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;");
+			var dbCreateTableResults = dbCreateTable.execute();
+		} else {
+			// Database Table Exists, We must Drop it to create it again
+			var dbDropTable = new query();
+			dbDropTable.setDatasource("#application.configBean.getDatasource()#");
+			dbDropTable.setSQL("DROP TABLE p_Auction_SiteConfig");
+			var dbDropTableResults = dbDropTable.execute();
+
+			if (len(dbDropTableResults.getResult()) eq 0) {
+				var dbCreateTable = new query();
+				dbCreateTable.setDatasource("#application.configBean.getDatasource()#");
+				dbCreateTable.setSQL("CREATE TABLE `p_Auction_SiteConfig` ( `TContent_ID` int(11) NOT NULL AUTO_INCREMENT, `Site_ID` tinytext NOT NULL, `DateCreated` datetime NOT NULL, `lastUpdateBy` varchar(35) NOT NULL, `lastUpdated` datetime NOT NULL, `SellerPercentageFee` decimal(7,3) DEFAULT NULL, PRIMARY KEY (`TContent_ID`) ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;");
+				var dbCreateTableResults = dbCreateTable.execute();
+			} else {
+				 writedump(dbDropTableResults.getResult());
+				 abort;
+			}
+		}
+
+		var dbCheckTables = new query();
+		dbCheckTables.setDatasource("#application.configBean.getDatasource()#");
+		dbCheckTables.setSQL("Show Tables LIKE 'p_Auction_Organization_Locations'");
+		var dbCheckTablesResults = dbCheckTables.execute();
+
+		if (dbCheckTablesResults.getResult().recordcount eq 0) {
+			// Since the Database Table does not exists, Lets Create it
+			var dbCreateTable = new query();
+			dbCreateTable.setDatasource("#application.configBean.getDatasource()#");
+			dbCreateTable.setSQL("CREATE TABLE `p_Auction_Organization_Locations` ( `TContent_ID` int(10) NOT NULL AUTO_INCREMENT, `Organization_ID` int(11) NOT NULL, `Site_ID` varchar(20) NOT NULL DEFAULT '', `LocationName` tinytext NOT NULL, `PhysicalAddress` tinytext NOT NULL, `PhysicalCity` tinytext NOT NULL, `PhysicalState` varchar(2) NOT NULL DEFAULT '', `PhysicalZipCode` varchar(5) NOT NULL DEFAULT '', `PhysicalZip4` varchar(4) DEFAULT '', `PrimaryVoiceNumber` varchar(14) DEFAULT '', `dateCreated` datetime NOT NULL DEFAULT '1980-01-01 01:00:00', `lastUpdated` datetime NOT NULL DEFAULT '1980-01-01 01:00:00', `lastUpdateBy` varchar(50) NOT NULL DEFAULT '', `isAddressVerified` char(1) NOT NULL DEFAULT '0', `FIPS_StateCode` char(2) DEFAULT NULL, `GeoCode_Latitude` varchar(20) DEFAULT NULL, `GeoCode_Longitude` varchar(20) DEFAULT NULL, `GeoCode_Township` varchar(40) DEFAULT NULL, `GeoCode_StateLongName` varchar(40) DEFAULT NULL, `GeoCode_CountryShortName` varchar(40) DEFAULT NULL, `GeoCode_CountyName` tinytext, `GeoCode_CountyNumber` char(5) DEFAULT NULL, `GeoCode_Neighborhood` varchar(40) DEFAULT NULL, `USPS_CarrierRoute` varchar(20) DEFAULT NULL, `USPS_CheckDigit` varchar(20) DEFAULT NULL, `USPS_DeliveryPoint` varchar(20) DEFAULT NULL, `PhysicalLocationCountry` varchar(20) DEFAULT NULL, `PhysicalCountry` varchar(20) DEFAULT NULL, `Active` bit(1) NOT NULL DEFAULT b'1', `CountyName` tinytext, `CountyNumber` tinytext, PRIMARY KEY (`TContent_ID`,`Organization_ID`) ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;");
+			var dbCreateTableResults = dbCreateTable.execute();
+		} else {
+			// Database Table Exists, We must Drop it to create it again
+			var dbDropTable = new query();
+			dbDropTable.setDatasource("#application.configBean.getDatasource()#");
+			dbDropTable.setSQL("DROP TABLE p_Auction_Organization_Locations");
+			var dbDropTableResults = dbDropTable.execute();
+
+			if (len(dbDropTableResults.getResult()) eq 0) {
+				var dbCreateTable = new query();
+				dbCreateTable.setDatasource("#application.configBean.getDatasource()#");
+				dbCreateTable.setSQL("CREATE TABLE `p_Auction_Organization_Locations` ( `TContent_ID` int(10) NOT NULL AUTO_INCREMENT, `Organization_ID` int(11) NOT NULL, `Site_ID` varchar(20) NOT NULL DEFAULT '', `LocationName` tinytext NOT NULL, `PhysicalAddress` tinytext NOT NULL, `PhysicalCity` tinytext NOT NULL, `PhysicalState` varchar(2) NOT NULL DEFAULT '', `PhysicalZipCode` varchar(5) NOT NULL DEFAULT '', `PhysicalZip4` varchar(4) DEFAULT '', `PrimaryVoiceNumber` varchar(14) DEFAULT '', `dateCreated` datetime NOT NULL DEFAULT '1980-01-01 01:00:00', `lastUpdated` datetime NOT NULL DEFAULT '1980-01-01 01:00:00', `lastUpdateBy` varchar(50) NOT NULL DEFAULT '', `isAddressVerified` char(1) NOT NULL DEFAULT '0', `FIPS_StateCode` char(2) DEFAULT NULL, `GeoCode_Latitude` varchar(20) DEFAULT NULL, `GeoCode_Longitude` varchar(20) DEFAULT NULL, `GeoCode_Township` varchar(40) DEFAULT NULL, `GeoCode_StateLongName` varchar(40) DEFAULT NULL, `GeoCode_CountryShortName` varchar(40) DEFAULT NULL, `GeoCode_CountyName` tinytext, `GeoCode_CountyNumber` char(5) DEFAULT NULL, `GeoCode_Neighborhood` varchar(40) DEFAULT NULL, `USPS_CarrierRoute` varchar(20) DEFAULT NULL, `USPS_CheckDigit` varchar(20) DEFAULT NULL, `USPS_DeliveryPoint` varchar(20) DEFAULT NULL, `PhysicalLocationCountry` varchar(20) DEFAULT NULL, `PhysicalCountry` varchar(20) DEFAULT NULL, `Active` bit(1) NOT NULL DEFAULT b'1', `CountyName` tinytext, `CountyNumber` tinytext, PRIMARY KEY (`TContent_ID`,`Organization_ID`) ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;");
+				var dbCreateTableResults = dbCreateTable.execute();
+			} else {
+				 writedump(dbDropTableResults.getResult());
+				 abort;
+			}
+		}
+
 		var NewGroupAuctionAdmin = #application.userManager.read("")#;
 		NewGroupAuctionAdmin.setSiteID(Session.SiteID);
 		NewGroupAuctionAdmin.setGroupName("Auction Site Admin");
 		NewGroupAuctionAdmin.setType(1);
 		NewGroupAuctionAdmin.setIsPublic(1);
 		NewGroupAuctionAdminStatus = #Application.userManager.create(NewGroupAuctionAdmin)#;
+
+
+		inserteSiteSettingRows = arrayNew(1);
+		inserteSiteSettingRows[1] = "'#Session.SiteID#', #Now()#, '#Session.Mura.Fname# #Session.Mura.LName#', #NOW()#, '0.30'";
+
+		var dbInsertSiteSettingsRecord = new query();
+		dbInsertSiteSettingsRecord.setDatasource("#application.configBean.getDatasource()#");
+		dbInsertSiteSettingsRecord.setSQL("Insert into p_Auction_SiteConfig (Site_ID, DateCreated, lastUpdateBy, lastUpdated, SellerPercentageFee) Values('#Session.SiteID#', #Now()#, '#Session.Mura.Fname# #Session.Mura.LName#', #NOW()#, '0.30')");
+		var dbInsertSiteSettingsRecordResults = dbInsertSiteSettingsRecord.execute();
+
 	}
 
 	public void function update() {
