@@ -10,6 +10,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 --->
 	<cfif Session.Mura.IsLoggedIn EQ True>
 		<cfparam name="Session.Mura.AdminSiteAdminRole" default="0" type="boolean">
+		<cfparam name="Session.Mura.AuctionSellerRole" default="0" type="boolean">
 		<cfparam name="Session.Mura.SuperAdminRole" default="0" type="boolean">
 		<cfset UserMembershipQuery = #$.currentUser().getMembershipsQuery()#>
 		<cfloop query="#Variables.UserMembershipQuery#">
@@ -19,6 +20,10 @@ http://www.apache.org/licenses/LICENSE-2.0
 
 		<cfif Session.Mura.AdminSiteAdminRole EQ "True">
 			<cfoutput>#Variables.this.redirect("siteadmin:main.default")#</cfoutput>
+		</cfif>
+
+		<cfif Session.getSellerOrganizationInfo.AccountType EQ 0>
+			<cfoutput>#Variables.this.redirect("selleradmin:main.default")#</cfoutput>
 		</cfif>
 	<cfelse>
 		<cfparam name="Session.Mura.AdminSiteAdminRole" default="0" type="boolean">

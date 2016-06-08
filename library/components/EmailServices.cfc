@@ -91,6 +91,14 @@
 				tusers.SiteID = <cfqueryparam value="#rc.$.siteConfig('siteID')#" cfsqltype="cf_sql_varchar">
 		</cfquery>
 
+		<cfquery name="getSiteFees" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+			Select SellerPercentageFee
+			From p_Auction_SiteConfig
+			Where Site_ID = <cfqueryparam value="#rc.$.siteConfig('siteID')#" cfsqltype="cf_sql_varchar">
+		</cfquery>
+
+
+
 		<cfif getUserAccount.RecordCount>
 			<cfset RTFFile = FileRead(Variables.ContractMasterTemplate)>
 			<cfset RTFFile = Replace(RTFFile,"%DayOfMonth%", DateFormat(Now(), "dd"))>
