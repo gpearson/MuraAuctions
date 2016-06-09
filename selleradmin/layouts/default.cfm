@@ -8,8 +8,8 @@
 						<a class="navbar-brand"><!--- #HTMLEditFormat(rc.pc.getPackage())# ---></a>
 					</div>
 					<ul class="nav navbar-nav">
-						<li class="<cfif rc.action eq 'public:main'>active</cfif> dropdown">
-							<a class="dropdown-toggle" data-toggle="dropdown" href="#buildURL('public:main')#">Home <span class="caret"></span></a>
+						<li class="<cfif rc.action eq 'selleradmin:main'>active</cfif> dropdown">
+							<a class="dropdown-toggle" data-toggle="dropdown" href="#buildURL('selleradmin:main')#">Home <span class="caret"></span></a>
 							<ul class="dropdown-menu">
 								<cfif Session.Mura.IsLoggedIn EQ True>
 									<li class="<cfif rc.action eq 'public:main.login'>active</cfif>">
@@ -30,6 +30,14 @@
 									</li>
 								</cfif>
 
+							</ul>
+						</li>
+						<li class="<cfif rc.action eq 'selleradmin:auctions'>active</cfif> dropdown">
+							<a class="dropdown-toggle" data-toggle="dropdown" href="#buildURL('selleradmin:auctions')#">Auctions <span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li class="<cfif rc.action eq 'selleradmin:auctions.addauction'>active</cfif>">
+									<a href="#buildURL('selleradmin:auctions.addauction')#">New Auction</a>
+								</li>
 							</ul>
 						</li>
 					</ul>
