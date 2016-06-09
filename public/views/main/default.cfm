@@ -47,10 +47,10 @@ http://www.apache.org/licenses/LICENSE-2.0
 		$(document).ready(function () {
 			var selectedRow = 0;
 			$("##jqGrid").jqGrid({
-				url: "/plugins/MuraInvoicing/admin/controllers/customers.cfc?method=getAllCustomers",
+				url: "/plugins/#rc.pc.getPackage()#/public/controllers/main.cfc?method=getAllActiveAuctions",
 				// we set the changes to be made at client side using predefined word clientArray
 				datatype: "json",
-				colNames: ["Rec No","Business Name","Address","City","State","Zip Code","Active"],
+				colNames: ["Rec No","Item Name","Starting Bid","Current Bid","Begin Date","End Date","Active"],
 				colModel: [
 					{ label: 'Rec ##', name: 'TContent_ID', width: 75, key: true, editable: false },
 					{ label: 'Business Name', name: 'BusinessName', editable: true },
@@ -90,42 +90,14 @@ http://www.apache.org/licenses/LICENSE-2.0
 			$('##jqGrid').navButtonAdd('##jqGridPager',
 				{
 					caption: "",
-					buttonicon: "glyphicon-pencil",
+					buttonicon: "glyphicon-search",
 					onClickButton: function(id) {
 						if (selectedRow == 0) {
-							alert("Please Select a Row to edit a Business in the database");
+							alert("Please Select a Row to view current infomation about an auction item");
 						} else {
-							var urlToGo = "http://" + window.location.hostname + "/plugins/MuraInvoicing/index.cfm?MuraInvoicingaction=admin:customers.updatecustomer&PerformAction=Edit&RecNo=" + selectedRow;
-							window.open(urlToGo,"_self");
-						}
-						},
-					position: "last"
-				}
-			)
-			$('##jqGrid').navButtonAdd('##jqGridPager',
-				{
-					caption: "",
-					buttonicon: "glyphicon-remove",
-					onClickButton: function(id) {
-						if (selectedRow == 0) {
-							alert("Please Select a Row to deactivate a Business in the database");
-						} else {
-							var urlToGo = "http://" + window.location.hostname + "/plugins/MuraInvoicing/index.cfm?MuraInvoicingaction=admin:customers.updatecustomer&PerformAction=Delete&RecNo=" + selectedRow;
-							window.open(urlToGo,"_self");
-						}
-					},
-					position: "last"
-				}
-			)
-			$('##jqGrid').navButtonAdd('##jqGridPager',
-				{
-					caption: "",
-					buttonicon: "glyphicon-user",
-					onClickButton: function(id) {
-						if (selectedRow == 0) {
-							alert("Please Select a Row to manage Business Contacts");
-						} else {
-							var urlToGo = "http://" + window.location.hostname + "/plugins/MuraInvoicing/index.cfm?MuraInvoicingaction=admin:customers.contacts&RecNo=" + selectedRow;
+							var grid = $('##jqGrid');
+							var auctionIDValue = grid.getCell(selectedRow, 'TContent_ID');
+							var urlToGo = "http://" + window.location.hostname + "#cgi.script_name#" + "#cgi.path_info#?#rc.pc.getPackage()#action=public:main.viewauction&AuctionID=" + auctionIDValue;
 							window.open(urlToGo,"_self");
 						}
 					},
