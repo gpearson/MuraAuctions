@@ -154,7 +154,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 			<cfset AuctionEndDate = #DateAdd("d", FORM.AuctionLength, FORM.AuctionStartDate)#>
 
 			<cfquery name="insertNewAuction" result="InsertNewRecord" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
-				Insert into p_Auction_Items(Item_Title, Organization_ID, Site_ID, Item_ModelNumber, Item_Description, Item_Condition, Item_PrimaryPhoto, Auction_StartDate, Auction_EndDate, Auction_Category, Auction_Type, dateCreated, lastUpdateBy, lastUpdateByID, Active)
+				Insert into p_Auction_Items(Item_Title, Organization_ID, Site_ID, Item_ModelNumber, Item_Description, Item_Condition, Item_WebDirectory, Item_PrimaryPhoto, Auction_StartDate, Auction_EndDate, Auction_Category, Auction_Type, dateCreated, lastUpdateBy, lastUpdateByID, Active)
 				Values(
 					<cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.ItemName#">,
 					<cfqueryparam cfsqltype="cf_sql_integer" value="#FORM.OrganizationID#">,
@@ -162,6 +162,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 					<cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.ItemModelNumber#">,
 					<cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.ItemDescription#">,
 					<cfqueryparam cfsqltype="cf_sql_bit" value="#FORM.ItemCondition#">,
+					<cfqueryparam cfsqltype="cf_sql_varchar" value="/plugins/#HTMLEditFormat(rc.pc.getPackage()#/includes/assets/photos/#Session.Mura.UserID#">,
 					<cfqueryparam cfsqltype="cf_sql_varchar" value="#Variables.NewServerPrimaryPhoto#">,
 					<cfqueryparam cfsqltype="cf_sql_date" value="#FORM.AuctionStartDate#">,
 					<cfqueryparam cfsqltype="cf_sql_date" value="#Variables.AuctionEndDate#">,
@@ -241,6 +242,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 					<cfquery name="updateAuctionRecord" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
 						Update p_Auction_Items
 						Set Starting_Price = <cfqueryparam cfsqltype="cf_sql_double" value="#FORM.AuctionStartPrice#">,
+							Current_Bid = <cfqueryparam cfsqltype="cf_sql_double" value="#FORM.AuctionStartPrice#">,
 							lastUpdated = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">,
 							lastUpdateBy = <cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.currentUser('userName')#">,
 							lastUpdateByID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.UserID#">
