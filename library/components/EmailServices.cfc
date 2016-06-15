@@ -78,6 +78,12 @@
 
 		<cfset ContractTemplateDir = #Left(ExpandPath("*"), Find("*", ExpandPath("*")) - 1)# & "plugins/" & #rc.pc.getPackage()#>
 		<cfset ContractExportTemplateDir = #Variables.ContractTemplateDir# & "/library/reports/completedcontracts/">
+
+		<cfdirectory action="list" directory="#Variables.ContractExportTemplateDir#" name="DoesDirectoryExists">
+		<cfif DoesDirectoryExists.RecordCount EQ 0>
+			<cfdirectory action="Create" directory="#Variables.ContractExportTemplateDir#">
+		</cfif>
+
 		<cfset ContractMasterTemplate = #Variables.ContractTemplateDir# & "/library/reports/AuctionSurplusContract.rtf">
 		<cfset CompletedContractFile = #Variables.ContractExportTemplateDir# & #Arguments.UserID# & "-CompletedContract.doc">
 		<cfset CompletedContractPDFFile = #Variables.ContractExportTemplateDir# & #Arguments.UserID# & "-CompletedContract.pdf">

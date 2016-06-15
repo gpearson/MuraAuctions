@@ -23,7 +23,7 @@
 						arrayAppend(Session.FormErrors, errormsg);
 					</cfscript>
 				</cflock>
-				<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.default&FormRetry=True">
+				<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:register.default&FormRetry=True&User=#URL.User#&Successful=#URL.Successful#">
 			</cfif>
 
 			<cfset AddressGeoCoded = #GeoCodeAddress(Form.PhysicalAddress, FORM.PhysicalCity, FORM.PhysicalState, FORM.PhysicalZipCode)#>
