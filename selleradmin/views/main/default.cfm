@@ -33,6 +33,11 @@ http://www.apache.org/licenses/LICENSE-2.0
 			</cfswitch>
 		</cfif>
 		<div class="panel-body">
+			<cfif Session.Mura.NeedSignedContractOnFile EQ "True">
+				<div class="alert alert-warning">
+					We have not received the signed contract which must be on file before you are allowed to post items to be sold through this auction site.
+				</div>
+			</cfif>
 			<table id="jqGrid"></table>
 			<div id="jqGridPager"></div>
 			<div id="dialog" title="Feature not supported" style="display:none"><p>That feature is not supported.</p></div>

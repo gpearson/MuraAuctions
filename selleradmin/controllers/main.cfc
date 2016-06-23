@@ -9,5 +9,19 @@
 				Organization_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#Session.getSellerOrganizationInfo.Organization_ID#">
 			Order by Auction_StartDate ASC, Item_Title ASC
 		</cfquery>
+
+		<cfquery name="checkForSignedContract" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+			Select ReceivedSellerContract, ReceivedSellerContractDate
+			From p_Auction_UserMatrix
+			Where Site_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.siteConfig('siteID')#"> and
+				User_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.UserID#">
+		</cfquery>
+
+		<cfif checkForSignedContract.ReceivedSellerContract EQ 0>
+			<cfset Session.Mura.NeedSignedContractOnFile = True>
+		<cfelse>
+			<cfset Session.Mura.NeedSignedContractOnFile = false>
+		</cfif>
+
 	</cffunction>
 </cfcomponent>

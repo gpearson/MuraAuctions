@@ -32,14 +32,16 @@
 
 							</ul>
 						</li>
-						<li class="<cfif rc.action eq 'selleradmin:auctions'>active</cfif> dropdown">
-							<a class="dropdown-toggle" data-toggle="dropdown" href="#buildURL('selleradmin:auctions')#">Auctions <span class="caret"></span></a>
-							<ul class="dropdown-menu">
-								<li class="<cfif rc.action eq 'selleradmin:auctions.addauction'>active</cfif>">
-									<a href="#buildURL('selleradmin:auctions.addauction')#">New Auction</a>
-								</li>
-							</ul>
-						</li>
+						<cfif Session.Mura.NeedSignedContractOnFile EQ "False">
+							<li class="<cfif rc.action eq 'selleradmin:auctions'>active</cfif> dropdown">
+								<a class="dropdown-toggle" data-toggle="dropdown" href="#buildURL('selleradmin:auctions')#">Auctions <span class="caret"></span></a>
+								<ul class="dropdown-menu">
+									<li class="<cfif rc.action eq 'selleradmin:auctions.addauction'>active</cfif>">
+										<a href="#buildURL('selleradmin:auctions.addauction')#">New Auction</a>
+									</li>
+								</ul>
+							</li>
+						</cfif>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						<li class="<cfif rc.action eq 'selleradmin:main'>active</cfif> dropdown">

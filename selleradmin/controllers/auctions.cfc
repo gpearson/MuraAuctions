@@ -162,7 +162,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 					<cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.ItemModelNumber#">,
 					<cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.ItemDescription#">,
 					<cfqueryparam cfsqltype="cf_sql_bit" value="#FORM.ItemCondition#">,
-					<cfqueryparam cfsqltype="cf_sql_varchar" value="/plugins/#HTMLEditFormat(rc.pc.getPackage()#/includes/assets/photos/#Session.Mura.UserID#">,
+					<cfqueryparam cfsqltype="cf_sql_varchar" value="/plugins/#HTMLEditFormat(rc.pc.getPackage())#/includes/assets/photos/#Session.Mura.UserID#">,
 					<cfqueryparam cfsqltype="cf_sql_varchar" value="#Variables.NewServerPrimaryPhoto#">,
 					<cfqueryparam cfsqltype="cf_sql_date" value="#FORM.AuctionStartDate#">,
 					<cfqueryparam cfsqltype="cf_sql_date" value="#Variables.AuctionEndDate#">,
