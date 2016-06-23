@@ -22,8 +22,10 @@ http://www.apache.org/licenses/LICENSE-2.0
 			<cfoutput>#Variables.this.redirect("siteadmin:main.default")#</cfoutput>
 		</cfif>
 
-		<cfif Session.getSellerOrganizationInfo.AccountType EQ 0>
-			<cfoutput>#Variables.this.redirect("selleradmin:main.default")#</cfoutput>
+		<cfif isDefined("Session.getSellerOrganizationInfo")>
+			<cfif Session.getSellerOrganizationInfo.AccountType EQ 0>
+				<cfoutput>#Variables.this.redirect("selleradmin:main.default")#</cfoutput>
+			</cfif>
 		</cfif>
 
 		<cfif Session.Mura.SuperAdminRole EQ "true">

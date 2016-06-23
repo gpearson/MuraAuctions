@@ -397,7 +397,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 					<cfset Session.FormErrors = #ArrayNew()#>
 				</cfif>
 				<cfquery name="Session.getSelectedUser" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
-					Select tusers.UserID, tusers.Fname, tusers.Lname, tusers.UserName, tusers.Email, tusers.InActive, tusers.SiteID, tusers.LastLogin, p_Auction_UserMatrix.AccountType, p_Auction_UserMatrix.ZipCode, p_Auction_UserMatrix.TelephoneNumber
+					Select tusers.UserID, tusers.Fname, tusers.Lname, tusers.UserName, tusers.Email, tusers.InActive, tusers.SiteID, tusers.LastLogin, p_Auction_UserMatrix.AccountType, p_Auction_UserMatrix.ZipCode, p_Auction_UserMatrix.TelephoneNumber, p_Auction_UserMatrix.ReceivedSellerContract, p_Auction_UserMatrix.ReceivedSellerContractDate
 					From tusers INNER JOIN p_Auction_UserMatrix ON p_Auction_UserMatrix.User_ID = tusers.UserID
 					Where tusers.SiteID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.siteConfig('siteID')#"> and
 						tusers.UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#URL.UserID#">
@@ -541,6 +541,12 @@ http://www.apache.org/licenses/LICENSE-2.0
 					Set AccountType = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.TypeOfAccountRequested#">,
 						lastUpdated = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">,
 						lastUpdateBy = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.Fname# #Session.Mura.LName#">
+						<cfif isDefined("FORM.ReceivedSignedContract")>
+							, ReceivedSellerContract = <cfqueryparam cfsqltype="cf_sql_bit" value="#FORM.ReceivedSignedContract#">
+						</cfif>
+						<cfif isDefined("FORM.DateReceivedSellerContract")>
+							, ReceivedSellerContractDate = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#FORM.DateReceivedSellerContract#">
+						</cfif>
 					Where User_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.UserID#">
 				</cfquery>
 				<cfquery name="updateUserAccount" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
@@ -690,4 +696,4 @@ http://www.apache.org/licenses/LICENSE-2.0
 
 
 
-</cfcomponent>
+</cfcomponent>,

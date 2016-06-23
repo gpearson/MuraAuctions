@@ -16,6 +16,7 @@
 <cfset temp = #QuerySetCell(UserInActiveQuery, "OptionName", "Yes")#>
 
 <cfoutput>
+
 	<div class="panel panel-default">
 		<cfif not isDefined("URL.PerformAction")>
 			<div class="panel-heading"><h1>Edit User Account</h1></div>
@@ -80,6 +81,25 @@
 								</cfselect>
 							</div>
 						</div>
+						<cfif Session.getSelectedUser.AccountType EQ 0>
+							<script>
+								$(function() {
+									$( "##DateReceivedSellerContract" ).datepicker();
+								});
+							</script>
+							<div class="form-group">
+								<label for="ReceviedContract" class="control-label col-sm-3">Received Signed Contract:&nbsp;</label>
+								<div class="col-sm-8">
+								<cfselect name="ReceivedSignedContract" class="form-control" Required="Yes" Multiple="No" query="UserInActiveQuery" selected="#Session.getSelectedUser.ReceivedSellerContract#" value="ID" Display="OptionName"  queryposition="below">
+									<option value="----">Received Signed Contract</option>
+								</cfselect>
+							</div>
+							<div class="form-group">
+								<label for="ReceviedContractDate" class="control-label col-sm-3">Date Received Contract:&nbsp;</label>
+								<div class="col-sm-8">
+								<cfinput type="text" class="form-control" id="DateReceivedSellerContract" name="DateReceivedSellerContract" value="#DateFormat(Session.getSelectedUser.ReceivedSellerContractDate, 'mmm dd, yyyy')#" required="no">
+							</div>
+						</cfif>
 					</div>
 					<div class="panel-footer">
 						<cfinput type="Submit" name="CreateUserAccount" class="btn btn-primary pull-right" value="Update User Account"><br /><br />
