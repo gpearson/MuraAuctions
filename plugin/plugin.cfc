@@ -204,7 +204,7 @@ component persistent="false" accessors="true" output="false" extends="mura.plugi
 			// Since the Database Table does not exists, Lets Create it
 			var dbCreateTable = new query();
 			dbCreateTable.setDatasource("#application.configBean.getDatasource()#");
-			dbCreateTable.setSQL("CREATE TABLE `p_Auction_UserMatrix` ( `TContent_ID` int(11) NOT NULL AUTO_INCREMENT, `Site_ID` tinytext NOT NULL, `User_ID` char(35) NOT NULL, `AccountType` int(11) NOT NULL, `lastUpdateBy` varchar(35) NOT NULL, `lastUpdated` datetime NOT NULL, `ZipCode` tinytext, `TelephoneNumber` tinytext, `Organization_ID` int(11) DEFAULT NULL, PRIMARY KEY (`TContent_ID`) ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;");
+			dbCreateTable.setSQL("CREATE TABLE `p_Auction_UserMatrix` ( `TContent_ID` int(11) NOT NULL AUTO_INCREMENT, `Site_ID` tinytext NOT NULL, `User_ID` char(35) NOT NULL, `AccountType` int(11) DEFAULT NULL, `lastUpdateBy` varchar(35) NOT NULL, `lastUpdated` datetime NOT NULL, `ZipCode` tinytext, `TelephoneNumber` tinytext, `Organization_ID` int(11) DEFAULT NULL, `ReceivedSellerContract` bit(1) NOT NULL DEFAULT b'0', `ReceivedSellerContractDate` datetime DEFAULT NULL, PRIMARY KEY (`TContent_ID`) ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;");
 			var dbCreateTableResults = dbCreateTable.execute();
 		} else {
 			// Database Table Exists, We must Drop it to create it again
@@ -216,7 +216,7 @@ component persistent="false" accessors="true" output="false" extends="mura.plugi
 			if (len(dbDropTableResults.getResult()) eq 0) {
 				var dbCreateTable = new query();
 				dbCreateTable.setDatasource("#application.configBean.getDatasource()#");
-				dbCreateTable.setSQL("CREATE TABLE `p_Auction_UserMatrix` ( `TContent_ID` int(11) NOT NULL AUTO_INCREMENT, `Site_ID` tinytext NOT NULL, `User_ID` char(35) NOT NULL, `AccountType` int(11) NOT NULL, `lastUpdateBy` varchar(35) NOT NULL, `lastUpdated` datetime NOT NULL, `ZipCode` tinytext, `TelephoneNumber` tinytext, `Organization_ID` int(11) DEFAULT NULL, PRIMARY KEY (`TContent_ID`) ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;");
+				dbCreateTable.setSQL("CREATE TABLE `p_Auction_UserMatrix` ( `TContent_ID` int(11) NOT NULL AUTO_INCREMENT, `Site_ID` tinytext NOT NULL, `User_ID` char(35) NOT NULL, `AccountType` int(11) DEFAULT NULL, `lastUpdateBy` varchar(35) NOT NULL, `lastUpdated` datetime NOT NULL, `ZipCode` tinytext, `TelephoneNumber` tinytext, `Organization_ID` int(11) DEFAULT NULL, `ReceivedSellerContract` bit(1) NOT NULL DEFAULT b'0', `ReceivedSellerContractDate` datetime DEFAULT NULL, PRIMARY KEY (`TContent_ID`) ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;");
 				var dbCreateTableResults = dbCreateTable.execute();
 			} else {
 				 writedump(dbDropTableResults.getResult());

@@ -25,9 +25,14 @@ http://www.apache.org/licenses/LICENSE-2.0
 		<cfif Session.getSellerOrganizationInfo.AccountType EQ 0>
 			<cfoutput>#Variables.this.redirect("selleradmin:main.default")#</cfoutput>
 		</cfif>
+
+		<cfif Session.Mura.SuperAdminRole EQ "true">
+			<cfoutput>#Variables.this.redirect("siteadmin:main.default")#</cfoutput>
+		</cfif>
 	<cfelse>
 		<cfparam name="Session.Mura.AdminSiteAdminRole" default="0" type="boolean">
 		<cfparam name="Session.Mura.SuperAdminRole" default="0" type="boolean">
+		<cfparam name="Session.Mura.AuctionSellerRole" default="0" type="boolean">
 	</cfif>
 </cfsilent>
 <cfoutput>
@@ -38,6 +43,20 @@ http://www.apache.org/licenses/LICENSE-2.0
 	<div class="panel panel-default">
 		<div class="panel-heading"><h1>Current Live Auctions</h1></div>
 		<div class="panel-body">
+			<cfif isDefined("Session.getSellerOrganizationInfo")>
+				<cfif Session.getSellerOrganizationInfo.RecordCount EQ 0>
+					<div class="alert alert-warning">
+						The system is in the process of sending you an email to your registered email address asking for additional information that is currently missing for your account. Until this information has been completed, you will have limited access to this website.
+					</div>
+				</cfif>
+				<CFIF Session.getSellerOrganizationInfo.RecordCount NEQ 0 and Session.getSellerOrganizationinfo.ReceivedSellerContract EQ 0>
+					<br />
+					<div class="alert alert-warning">
+						The system is in the process of sending you an email regarding the Seller's Contract for review, to be signed and returned to us. Once we receive it, your account will be updated and have full access to this site.
+					</div>
+				</cfif>
+			</cfif>
+
 			<table id="jqGrid"></table>
 			<div id="jqGridPager"></div>
 			<div id="dialog" title="Feature not supported" style="display:none"><p>That feature is not supported.</p></div>
@@ -106,4 +125,5 @@ http://www.apache.org/licenses/LICENSE-2.0
 			)
 		});
 	</script>
+	<cfdump var="#Session#">
 </cfoutput>

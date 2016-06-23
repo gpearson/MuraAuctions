@@ -402,6 +402,23 @@ http://www.apache.org/licenses/LICENSE-2.0
 					Where tusers.SiteID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.siteConfig('siteID')#"> and
 						tusers.UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#URL.UserID#">
 				</cfquery>
+				<cfif Session.getSelectedUser.RecordCount EQ 0>
+					<cfquery name="insertExistingUserIntoAuctionUserMatrix" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+						Insert into p_Auction_UserMatrix(Site_ID, User_ID, lastUpdateBy, lastUpdated)
+						Values(
+							<cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.siteConfig('siteID')#">,
+							<cfqueryparam cfsqltype="cf_sql_varchar" value="#URL.UserID#">,
+							<cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.Fname# #Session.Mura.LName#">,
+							<cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">
+						)
+					</cfquery>
+					<cfquery name="Session.getSelectedUser" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+						Select tusers.UserID, tusers.Fname, tusers.Lname, tusers.UserName, tusers.Email, tusers.InActive, tusers.SiteID, tusers.LastLogin, p_Auction_UserMatrix.AccountType, p_Auction_UserMatrix.ZipCode, p_Auction_UserMatrix.TelephoneNumber
+						From tusers INNER JOIN p_Auction_UserMatrix ON p_Auction_UserMatrix.User_ID = tusers.UserID
+						Where tusers.SiteID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.siteConfig('siteID')#"> and
+							tusers.UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#URL.UserID#">
+					</cfquery>
+				</cfif>
 				<cfquery name="Session.getSelectedUserSecurityRole" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
 					Select tusersmemb.GroupID, tGroupName.GroupName, tusers.UserID, tusers.Fname, tusers.Lname, tusers.SiteID
 					From tusers INNER JOIN tusersmemb on tusersmemb.UserID = tusers.UserID
@@ -413,7 +430,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 				<cfquery name="Session.getSecurityRoles" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
 					Select UserID, GroupName
 					From tusers
-					Where GroupName is not null and GroupName <> 'Admin'
+					Where GroupName is not null and GroupName <> 'Admin' and GroupName Like '%Auction%'
 				</cfquery>
 			</cflock>
 		<cfelseif not isDefined("FORM.formSubmit") and not isDefined("FORM.UserID")>
