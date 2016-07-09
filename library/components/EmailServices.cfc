@@ -103,8 +103,6 @@
 			Where Site_ID = <cfqueryparam value="#rc.$.siteConfig('siteID')#" cfsqltype="cf_sql_varchar">
 		</cfquery>
 
-
-
 		<cfif getUserAccount.RecordCount>
 			<cfset RTFFile = FileRead(Variables.ContractMasterTemplate)>
 			<cfset RTFFile = Replace(RTFFile,"%DayOfMonth%", DateFormat(Now(), "dd"))>
@@ -137,8 +135,6 @@
 			<cfoutput><cfdocument format="pdf" filename="#CompletedContractPDFFile#" overwrite="true">#htmlOutput#</cfdocument></cfoutput>
 			<cfinclude template="EmailTemplates/SendSellerContractForSignature.cfm">
 		</cfif>
-
-
 	</cffunction>
 
 	<cffunction name="SendBuyerAccountActivationEmailConfirmation" ReturnType="Any" Output="False">
@@ -164,4 +160,38 @@
 		</cfquery>
 		<cfinclude template="EmailTemplates/SellerAccountActivationConfirmationEmailToIndividual.cfm">
 	</cffunction>
+
+	<cffunction name="SendHighestBidderNotice" ReturnType="Any" Output="False">
+		<cfargument name="rc" type="struct" Required="True">
+		<cfargument name="UserID" type="String" Required="True">
+		<cfargument name="AuctionID" type="String" Required="True">
+
+		<cfquery name="getAuction" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+			Select p_Auction_Items.Item_Title, p_Auction_Items.Current_Bid, p_Auction_Items.Auction_StartDate, p_Auction_Items.Auction_EndDate, tusers.Fname, tusers.Lname, tusers.Email
+			From p_Auction_Items INNER JOIN tusers on tusers.UserID = p_Auction_Items.HighestBid_UserID
+			Where p_Auction_Items.TContent_ID = <cfqueryparam value="#Arguments.AuctionID#" cfsqltype="cf_sql_integer">
+		</cfquery>
+		<cfinclude template="EmailTemplates/HigestBidderConfirmationToIndividual.cfm">
+	</cffunction>
+
+	<cffunction name="SendOutBidNotice" ReturnType="Any" Output="False">
+		<cfargument name="rc" type="struct" Required="True">
+		<cfargument name="UserID" type="String" Required="True">
+		<cfargument name="AuctionID" type="String" Required="True">
+
+		<cfquery name="getAuction" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+			Select Item_Title, Current_Bid, Auction_StartDate, Auction_EndDate
+			From p_Auction_Items
+			Where TContent_ID = <cfqueryparam value="#Arguments.AuctionID#" cfsqltype="cf_sql_integer">
+		</cfquery>
+
+		<cfquery name="getOutbidUser" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+			Select Fname, Lname, Email
+			From tusers
+			Where UserID = <cfqueryparam value="#Arguments.UserID#" cfsqltype="cf_sql_varchar">
+		</cfquery>
+
+		<cfinclude template="EmailTemplates/OutBidConfirmationToIndividual.cfm">
+	</cffunction>
+
 </cfcomponent>
