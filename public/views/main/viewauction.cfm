@@ -1,4 +1,12 @@
 <cfoutput>
+	<cfif Session.Mura.IsLoggedIn EQ True>
+		<table class="table">
+			<tr>
+				<td><strong>Logged In:</strong> #Session.Mura.Fname# #Session.Mura.Lname#</td>
+				<td><strong>Login Last:</strong> #DateFormat(Session.Mura.LastLogin, "Full")#</td>
+			</tr>
+		</table>
+	</cfif>
 	<div class="panel panel-default">
 		<div class="panel-heading"><h1>Viewing Auction: #Session.getSelectedAuction.Item_Title#</h1></div>
 		<div class="panel-body">

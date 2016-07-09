@@ -31,6 +31,12 @@ http://www.apache.org/licenses/LICENSE-2.0
 		<cfif Session.Mura.SuperAdminRole EQ "true">
 			<cfoutput>#Variables.this.redirect("siteadmin:main.default")#</cfoutput>
 		</cfif>
+
+		<cfif isDefined("Session.UserToPlaceBid")>
+			<cfif isDefined("Session.UserToPlaceBid.AuctionID")>
+				<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:main.placebid&AuctionID=#Session.UserToPlaceBid.AuctionID#">
+			</cfif>
+		</cfif>
 	<cfelse>
 		<cfparam name="Session.Mura.AdminSiteAdminRole" default="0" type="boolean">
 		<cfparam name="Session.Mura.SuperAdminRole" default="0" type="boolean">
@@ -42,6 +48,14 @@ http://www.apache.org/licenses/LICENSE-2.0
 		$.jgrid.defaults.responsive = true;
 		$.jgrid.defaults.styleUI = 'Bootstrap';
 	</script>
+	<cfif Session.Mura.IsLoggedIn EQ True>
+		<table class="table">
+			<tr>
+				<td><strong>Logged In:</strong> #Session.Mura.Fname# #Session.Mura.Lname#</td>
+				<td><strong>Login Last:</strong> #DateFormat(Session.Mura.LastLogin, "Full")#</td>
+			</tr>
+		</table>
+	</cfif>
 	<div class="panel panel-default">
 		<div class="panel-heading"><h1>Current Live Auctions</h1></div>
 		<div class="panel-body">
@@ -58,7 +72,21 @@ http://www.apache.org/licenses/LICENSE-2.0
 					</div>
 				</cfif>
 			</cfif>
-
+			<cfif isDefined("URL.UserAction")>
+				<cfswitch expression="#URL.UserAction#">
+					<cfcase value="BidSuccessful">
+						<cfif URL.Successful EQ "True">
+							<div class="alert alert-success">
+								You have sucessfully placed your bid for the item.
+							</div>
+						<cfelse>
+							<div class="alert alert-error">
+								An error has occurred and your bid was not placed for the item you were looking at. Please try to place your bid again.
+							</div>
+						</cfif>
+					</cfcase>
+				</cfswitch>
+			</cfif>
 			<table id="jqGrid"></table>
 			<div id="jqGridPager"></div>
 			<div id="dialog" title="Feature not supported" style="display:none"><p>That feature is not supported.</p></div>
@@ -71,9 +99,9 @@ http://www.apache.org/licenses/LICENSE-2.0
 				url: "/plugins/#rc.pc.getPackage()#/public/controllers/main.cfc?method=getAllActiveAuctions",
 				// we set the changes to be made at client side using predefined word clientArray
 				datatype: "json",
-				colNames: ["Rec No","Item Name","Starting Bid","Current Bid","Begin Date","End Date","Active"],
+				colNames: ["Auction ID","Item Name","Starting Bid","Current Bid","Begin Date","End Date","Active"],
 				colModel: [
-					{ label: 'Rec ##', name: 'TContent_ID', width: 75, key: true, editable: false },
+					{ label: 'Auction ID', name: 'TContent_ID', width: 75, key: true, editable: false },
 					{ label: 'Business Name', name: 'BusinessName', editable: true },
 					{ label: 'Physical Address', name: 'PhysicalAddress', width: 100, editable: true },
 					{ label: 'City', name: 'PhysicalCity', width: 75, editable: true },
@@ -127,5 +155,4 @@ http://www.apache.org/licenses/LICENSE-2.0
 			)
 		});
 	</script>
-	<cfdump var="#Session#">
 </cfoutput>
