@@ -178,7 +178,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 			<cfelse>
 				<cfset SendEmailCFC = createObject("component","plugins/#HTMLEditFormat(rc.pc.getPackage())#/library/components/EmailServices")>
 				<cfswitch expression="#getSelectedAuction.Auction_Type#">
-					<cfcase value="Fixed">
+					<cfcase value="Auction">
 						<cfquery name="getAuctionBids" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
 							Select Bid_Amount, User_ID
 							From p_Auction_Bids
@@ -268,8 +268,9 @@ http://www.apache.org/licenses/LICENSE-2.0
 			</cflock>
 			<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:main.viewauction&BidToLow=True&AuctionID=#Session.UserToPlaceBid.AuctionID#">
 		<cfelse>
+			<cfset SendEmailCFC = createObject("component","plugins/#HTMLEditFormat(rc.pc.getPackage())#/library/components/EmailServices")>
 			<cfswitch expression="#getSelectedAuction.Auction_Type#">
-				<cfcase value="Fixed">
+				<cfcase value="Auction">
 					<cfquery name="getAuctionBids" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
 						Select Bid_Amount, User_ID
 						From p_Auction_Bids
@@ -294,6 +295,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 								HighestBid_UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.UserID#">
 							Where TContent_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#Session.UserToPlaceBid.AuctionID#">
 						</cfquery>
+						<cfset SendContactEmail = #SendEmailCFC.SendHighestBidderNotice(rc, Session.Mura.UserID, Session.UserToPlaceBid.AuctionID)#>
 						<cfset temp = StructDelete(Session, "UserToPlaceBid")>
 						<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:main.default&UserAction=BidSuccessful&AuctionID=#URL.AuctionID#&Successful=True">
 					<cfelse>
@@ -322,6 +324,8 @@ http://www.apache.org/licenses/LICENSE-2.0
 									HighestBid_UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.UserID#">
 								Where TContent_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#Session.UserToPlaceBid.AuctionID#">
 							</cfquery>
+							<cfset SendOutBidEmail = #SendEmailCFC.SendOutBidNotice(rc, getAuctionBids.User_ID[1], Session.UserToPlaceBid.AuctionID)#>
+							<cfset SendHighBidEmail = #SendEmailCFC.SendHighestBidderNotice(rc, Session.Mura.UserID, Session.UserToPlaceBid.AuctionID)#>
 							<cfset temp = StructDelete(Session, "UserToPlaceBid")>
 							<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:main.viewauction&UserAction=BidSuccessful&AuctionID=#URL.AuctionID#&Successful=True">
 						</cfif>

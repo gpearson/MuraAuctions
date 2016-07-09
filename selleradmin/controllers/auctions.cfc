@@ -122,37 +122,6 @@ http://www.apache.org/licenses/LICENSE-2.0
 				</cflock>
 				<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=selleradmin:auctions.addauction&FormRetry=True">
 			</cfif>
-
-			<!---
-			<cffile action="upload" fileField="FORM.ItemPrimaryPhoto" result="ItemPrimaryPhoto" destination="#GetTempDirectory()#" nameconflict="MakeUnique">
-			<cfset NewServerPrimaryPhoto = #Replace(Variables.ItemPrimaryPhoto.ServerFile, " ", "_", "ALL")#>
-			<cfset NewServerPrimaryPhoto = #Replace(Variables.NewServerPrimaryPhoto, "'", "_", "ALL")#>
-			<cffile action="rename" source="#GetTempDirectory()#/#Variables.ItemPrimaryPhoto.ServerFile#" Destination="#GetTempDirectory()#/#Variables.NewServerPrimaryPhoto#">
-			<cfdirectory action="list" directory="#rc.pc.getFullPath()#/includes/assets/photos/#Session.Mura.UserID#" name="DoesDirectoryExists">
-			<cfif DoesDirectoryExists.RecordCount EQ 0><cfdirectory action="Create" directory="#rc.pc.getFullPath()#/includes/assets/photos/#Session.Mura.UserID#"></cfif>
-			<cffile action="move" source="#GetTempDirectory()#/#Variables.NewServerPrimaryPhoto#" Destination="#rc.pc.getFullPath()#/includes/assets/#Session.Mura.UserID#/#Variables.NewServerPrimaryPhoto#">
-
-			<cfif LEN(FORM.ItemSecondaryPhoto)>
-				<cffile action="upload" fileField="FORM.ItemSecondaryPhoto" result="ItemSecondaryPhoto" destination="#GetTempDirectory()#" nameconflict="MakeUnique">
-				<cfset NewServerSecondaryPhoto = #Replace(Variables.ItemSecondaryPhoto.ServerFile, " ", "_", "ALL")#>
-				<cfset NewServerSecondaryPhoto = #Replace(Variables.NewServerSecondaryPhoto, "'", "_", "ALL")#>
-				<cffile action="rename" source="#GetTempDirectory()#/#Variables.ItemSecondaryPhoto.ServerFile#" Destination="#GetTempDirectory()#/#Variables.NewServerSecondaryPhoto#">
-				<cfdirectory action="list" directory="#rc.pc.getFullPath()#/includes/assets/photos/#Session.Mura.UserID#" name="DoesDirectoryExists">
-				<cfif DoesDirectoryExists.RecordCount EQ 0><cfdirectory action="Create" directory="#rc.pc.getFullPath()#/includes/assets/photos/#Session.Mura.UserID#"></cfif>
-				<cffile action="move" source="#GetTempDirectory()#/#Variables.NewServerSecondaryPhoto#" Destination="#rc.pc.getFullPath()#/includes/assets/#Session.Mura.UserID#/#Variables.NewServerSecondaryPhoto#">
-			</cfif>
-
-			<cfif LEN(FORM.ItemTertiaryPhoto)>
-				<cffile action="upload" fileField="FORM.ItemTertiaryPhoto" result="ItemTertiaryPhoto" destination="#GetTempDirectory()#" nameconflict="MakeUnique">
-				<cfset NewServerTertiaryPhoto = #Replace(Variables.ItemTertiaryPhoto.ServerFile, " ", "_", "ALL")#>
-				<cfset NewServerTertiaryPhoto = #Replace(Variables.NewServerTertiaryPhoto, "'", "_", "ALL")#>
-				<cffile action="rename" source="#GetTempDirectory()#/#Variables.NewServerTertiaryPhoto.ServerFile#" Destination="#GetTempDirectory()#/#Variables.NewServerTertiaryPhoto#">
-				<cfdirectory action="list" directory="#rc.pc.getFullPath()#/includes/assets/photos/#Session.Mura.UserID#" name="DoesDirectoryExists">
-				<cfif DoesDirectoryExists.RecordCount EQ 0><cfdirectory action="Create" directory="#rc.pc.getFullPath()#/includes/assets/photos/#Session.Mura.UserID#"></cfif>
-				<cffile action="move" source="#GetTempDirectory()#/#Variables.NewServerTertiaryPhoto#" Destination="#rc.pc.getFullPath()#/includes/assets/#Session.Mura.UserID#/#Variables.NewServerTertiaryPhoto#">
-			</cfif>
-			--->
-
 			<cfset AuctionEndDate = #DateAdd("d", FORM.AuctionLength, FORM.AuctionStartDate)#>
 
 			<cfquery name="insertNewAuction" result="InsertNewRecord" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
@@ -219,30 +188,6 @@ http://www.apache.org/licenses/LICENSE-2.0
 				</cfquery>
 			</cfif>
 
-			<!---
-			<cfif LEN(FORM.ItemSecondaryPhoto)>
-				<cfquery name="updateAuctionRecord" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
-					Update p_Auction_Items
-					Set Item_SecondaryPhoto = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Variables.NewServerSecondaryPhoto#">,
-						lastUpdated = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">,
-						lastUpdateBy = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.Fname# #Session.Mura.LName#">,
-						lastUpdateByID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.UserID#">
-					Where TContent_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#Variables.InsertNewRecord.generatedKey#">
-				</cfquery>
-			</cfif>
-
-			<cfif LEN(FORM.ItemTertiaryPhoto)>
-				<cfquery name="updateAuctionRecord" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
-					Update p_Auction_Items
-					Set Item_TertiaryPhoto = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Variables.NewServerTertiaryPhoto#">,
-						lastUpdated = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">,
-						lastUpdateBy = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.Fname# #Session.Mura.LName#">,
-						lastUpdateByID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.UserID#">
-					Where TContent_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#Variables.InsertNewRecord.generatedKey#">
-				</cfquery>
-			</cfif>
-			--->
-
 			<cfif FORM.LocationIDParent EQ "true">
 				<cfquery name="updateAuctionRecord" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
 					Update p_Auction_Items
@@ -275,7 +220,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 			</cfswitch>
 		<cfelseif isDefined("FORM.formSubmit") and isDefined("FORM.UpdateAuctionInfo")>
 			<cfswitch expression="#FORM.AuctionType#">
-				<cfcase value="Fixed">
+				<cfcase value="Auction">
 					<cfquery name="updateAuctionRecord" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
 						Update p_Auction_Items
 						Set Auction_Type = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.AuctionType#">,
@@ -289,7 +234,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 					</cfquery>
 					<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=selleradmin:main.default&UserAction=AuctionCreated&Successful=True">
 				</cfcase>
-				<cfcase value="Auction">
+				<cfcase value="Fixed">
 
 				</cfcase>
 			</cfswitch>

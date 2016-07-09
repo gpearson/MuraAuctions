@@ -272,7 +272,7 @@
 			</cfform>
 		<cfelseif isDefined("URL.AuctionID") and isDefined("URL.AuctionType")>
 			<cfswitch expression="#URL.AuctionType#">
-				<cfcase value="Fixed">
+				<cfcase value="Auction">
 					<div class="panel-heading"><h1>Add Auction Additional Information</h1></div>
 					<br /><br />
 					<cfform action="" method="post" id="AuctionAdditionalInfo" class="form-horizontal" enctype="multipart/form-data">
@@ -370,7 +370,7 @@
 						});
 					</script>
 				</cfcase>
-				<cfcase value="Auction">
+				<cfcase value="Fixed">
 
 				</cfcase>
 			</cfswitch>
