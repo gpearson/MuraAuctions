@@ -133,6 +133,8 @@
 							<cfselect name="AuctionCategory" class="form-control" Required="Yes" Multiple="No" query="Session.CategoryQuery" value="ID" Display="CategoryName"  queryposition="below"></cfselect>
 						</div>
 					</div>
+					<br /><br />
+					<div class="alert alert-info">An Item with Auction Style will give bidders the opportunity to bid against each other to raise the price of an item. A Fixed Price Auction will set a firm price on an auction item.</div>
 					<div class="form-group">
 						<label for="AuctionType" class="control-label col-sm-3">Auction Type:&nbsp;</label>
 						<!--- Fixed or Auction Style --->
