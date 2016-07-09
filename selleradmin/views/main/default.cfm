@@ -18,17 +18,35 @@ http://www.apache.org/licenses/LICENSE-2.0
 		<div class="panel-heading"><h1>Current Active Auctions for Account</h1></div>
 		<cfif isDefined("URL.UserAction")>
 			<cfswitch expression="#URL.UserAction#">
-				<br /><br />
-				<cfcase value="AuctionCreated">
+				<cfcase value="OrganizationUpdated">
+					<div class="panel-body">
 					<cfif URL.Successful EQ "true">
-							<div class="alert alert-success">
-								You have successfully created a new auction item that can be purchased by the registered buyers of this application.
-							</div>
-						<cfelse>
-							<div class="alert alert-danger">
-								An error has occurred and the auction item was not added to the database.
-							</div>
-						</cfif>
+						<br /><br />
+						<div class="alert alert-success">
+							You have successfully updated the information for your organization.
+						</div>
+					<cfelse>
+						<br /><br />
+						<div class="alert alert-danger">
+							An error has occurred and the organization information was not updated in the database.
+						</div>
+					</cfif>
+					</div>
+				</cfcase>
+				<cfcase value="AuctionCreated">
+					<div class="panel-body">
+					<cfif URL.Successful EQ "true">
+						<br /><br />
+						<div class="alert alert-success">
+							You have successfully created a new auction item that can be purchased by the registered buyers of this application.
+						</div>
+					<cfelse>
+						<br /><br />
+						<div class="alert alert-danger">
+							An error has occurred and the auction item was not added to the database.
+						</div>
+					</cfif>
+					</div>
 				</cfcase>
 			</cfswitch>
 		</cfif>
