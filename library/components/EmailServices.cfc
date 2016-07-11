@@ -171,7 +171,7 @@
 			From p_Auction_Items INNER JOIN tusers on tusers.UserID = p_Auction_Items.HighestBid_UserID
 			Where p_Auction_Items.TContent_ID = <cfqueryparam value="#Arguments.AuctionID#" cfsqltype="cf_sql_integer">
 		</cfquery>
-		<cfinclude template="EmailTemplates/HigestBidderConfirmationToIndividual.cfm">
+		<cfinclude template="EmailTemplates/HighestBidderConfirmationToIndividual.cfm">
 	</cffunction>
 
 	<cffunction name="SendOutBidNotice" ReturnType="Any" Output="False">

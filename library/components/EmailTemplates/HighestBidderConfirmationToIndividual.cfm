@@ -1,4 +1,4 @@
-<cfmail To="#getAuction.FName# #getAuction.LName# <#getAuction.Email#>" from="Auction Surplus <donotreply@#CGI.Server_Name#>" subject="Auction Surplus - Higest Bidder Confirmation" server="127.0.0.1">
+<cfmail To="#getAuction.FName# #getAuction.LName# <#getAuction.Email#>" from="Auction Surplus <donotreply@#CGI.Server_Name#>" subject="Auction Surplus - Highest Bidder Confirmation" server="127.0.0.1">
 <cfmailpart type="text/plain">
 #getAuction.FName# #getAuction.LName#,
 
