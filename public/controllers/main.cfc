@@ -44,7 +44,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 				p_Auction_Items.Current_Bid
 			FROM p_Auction_Items INNER JOIN p_Auction_Organizations ON p_Auction_Organizations.TContent_ID = p_Auction_Items.Organization_ID
 				INNER JOIN p_Auction_ProductCategories ON p_Auction_ProductCategories.Category_ID = p_Auction_Items.Auction_Category
-			WHERE p_Auction_Items.Site_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.siteConfig('siteID')#"> AND p_Auction_Items.Active = <cfqueryparam cfsqltype="cf_sql_bit" value="1">
+			WHERE p_Auction_Items.Site_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.siteConfig('siteID')#"> AND p_Auction_Items.Active = <cfqueryparam cfsqltype="cf_sql_bit" value="1"> and p_Auction_Items.Auction_Won = <cfqueryparam cfsqltype="cf_sql_bit" value="0">
 			Order by p_Auction_Items.Auction_StartDate ASC
 		</cfquery>
 	</cffunction>
@@ -167,7 +167,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 					p_Auction_Items.TContent_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#FORM.AuctionID#">
 			</cfquery>
 
-			<cfif #FORM.UserBid# LTE #getSelectedAuction.Current_Bid#>
+			<cfif #FORM.UserBid# LT #getSelectedAuction.Current_Bid#>
 				<cflock timeout="60" scope="SESSION" type="Exclusive">
 					<cfscript>
 						errormsg = {property="HumanChecker",message="The Current Bid is higher than the bid you tried to place. Please enter an amount that is higher than the current bid."};
@@ -192,12 +192,23 @@ http://www.apache.org/licenses/LICENSE-2.0
 							Update p_Auction_Items
 							Set Auction_Won = <cfqueryparam cfsqltype="cf_sql_bit" value="1">,
 								Auction_WonDate = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">,
-								Auction_WonUserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.UserID#">
+								Auction_WonUserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.UserID#">,
+
 							Where TContent_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#FORM.AuctionID#">
 						</cfquery>
 						<cfset SendContactEmail = #SendEmailCFC.SendAuctionWonNotification(rc, Session.Mura.UserID, FORM.AuctionID)#>
+						<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:main.default&UserAction=AuctionWon&Successful=True">
 					</cfcase>
 					<cfcase value="Auction">
+						<cfif #FORM.UserBid# EQ #getSelectedAuction.Current_Bid#>
+							<cflock timeout="60" scope="SESSION" type="Exclusive">
+								<cfscript>
+									errormsg = {property="HumanChecker",message="The Current Bid is equal to the bid you tried to place. Please enter an amount that is higher than the current bid."};
+									arrayAppend(Session.FormErrors, errormsg);
+								</cfscript>
+							</cflock>
+							<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:main.viewauction&BidToLow=True&AuctionID=#FORM.AuctionID#">
+						</cfif>
 						<cfquery name="getAuctionBids" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
 							Select Bid_Amount, User_ID
 							From p_Auction_Bids
@@ -278,7 +289,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 				p_Auction_Items.TContent_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#Session.UserToPlaceBid.AuctionID#">
 		</cfquery>
 
-		<cfif #Session.UserToPlaceBid.BidAmount# LTE #getSelectedAuction.Current_Bid#>
+		<cfif #Session.UserToPlaceBid.BidAmount# LT #getSelectedAuction.Current_Bid#>
 			<cflock timeout="60" scope="SESSION" type="Exclusive">
 				<cfscript>
 					errormsg = {property="HumanChecker",message="The Current Bid is higher than the bid you tried to place. Please enter an amount that is higher than the current bid."};
@@ -309,6 +320,15 @@ http://www.apache.org/licenses/LICENSE-2.0
 					<cfset SendContactEmail = #SendEmailCFC.SendAuctionWonNotification(rc, Session.Mura.UserID, FORM.AuctionID)#>
 				</cfcase>
 				<cfcase value="Auction">
+					<cfif #FORM.UserBid# EQ #getSelectedAuction.Current_Bid#>
+							<cflock timeout="60" scope="SESSION" type="Exclusive">
+								<cfscript>
+									errormsg = {property="HumanChecker",message="The Current Bid is equal to the bid you tried to place. Please enter an amount that is higher than the current bid."};
+									arrayAppend(Session.FormErrors, errormsg);
+								</cfscript>
+							</cflock>
+							<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:main.viewauction&BidToLow=True&AuctionID=#FORM.AuctionID#">
+						</cfif>
 					<cfquery name="getAuctionBids" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
 						Select Bid_Amount, User_ID
 						From p_Auction_Bids
@@ -370,6 +390,25 @@ http://www.apache.org/licenses/LICENSE-2.0
 					</cfif>
 				</cfcase>
 			</cfswitch>
+		</cfif>
+
+	</cffunction>
+
+	<cffunction name="processpayment" returntype="any" output="false">
+		<cfargument name="rc" required="true" type="struct" default="#StructNew()#">
+
+		<cfif not isDefined("URL.Key")>
+
+		<cfelseif isDefined("URL.Key")>
+			<cfset DecodedKey = #ToString(ToBinary(URL.Key))#>
+
+			<cfif ListFirst(ListFirst(Variables.DecodedKey, "&"), "=") NEQ "AuctionID">
+				<cfdump var="#Variables.DecodedKey#">
+				<cfabort>
+			<cfelseif ListFirst(ListLast(Variables.DecodedKey, "&"), "=") NEQ "UserID">
+				<cfdump var="#Variables.DecodedKey#">
+				<cfabort>
+			</cfif>
 		</cfif>
 
 	</cffunction>

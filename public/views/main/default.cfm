@@ -74,6 +74,17 @@ http://www.apache.org/licenses/LICENSE-2.0
 			</cfif>
 			<cfif isDefined("URL.UserAction")>
 				<cfswitch expression="#URL.UserAction#">
+					<cfcase value="AuctionWon">
+						<cfif URL.Successful EQ "True">
+							<div class="alert alert-success">
+								You have sucessfully won an auction item. We are in the process of sending you a confirmation email that will give you instructions on what to bring to the pickup location.
+							</div>
+						<cfelse>
+							<div class="alert alert-error">
+								An error has occurred and your bid was not placed for the item you were looking at. Please try to place your bid again.
+							</div>
+						</cfif>
+					</cfcase>
 					<cfcase value="BidSuccessful">
 						<cfif URL.Successful EQ "True">
 							<div class="alert alert-success">
