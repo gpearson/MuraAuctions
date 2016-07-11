@@ -62,7 +62,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 			<cfif isDefined("URL.ProcessPayment")>
 				<cfif URL.ProcessPayment EQ "true">
 					<div class="alert alert-success">
-						Payment Processing has completed successfully. Within the next few minutes you will be receiving an email message with a document attached that you will print and take to the pickup location of the auction item. Please be sure to have a valid government issued picture identification with you.
+						Payment Processing has completed successfully. Within the next few minutes you will be receiving an email message with a document attached that you will print and take to the pickup location of the auction item. Please be sure to have a valid government issued picture identification when you arrive to the pickup location.
 					</div>
 				</cfif>
 			</cfif>
