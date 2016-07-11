@@ -210,8 +210,65 @@
 			From tusers
 			Where UserID = <cfqueryparam value="#Arguments.UserID#" cfsqltype="cf_sql_varchar">
 		</cfquery>
+
+		<cfset URLKey = "AuctionID=" & #Arguments.AuctionID# & "&UserID=" & #Arguments.UserID#>
+		<cfset URLKey = #URLEncodedFormat(ToBase64(Variables.URLKey))#>
+
 		<cfinclude template="EmailTemplates/SendAuctionWinnerNotification.cfm">
 
+	</cffunction>
+
+	<cffunction name="SendPaymentEmailToAdministrators" RetrunType="Any" Output="False">
+		<cfargument name="rc" type="struct" Required="True">
+		<cfargument name="PaymentRecordID" type="numeric" Required="True">
+
+		<cfquery name="GetAdmins" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+			Select tusersmemb.UserID
+			From tusersmemb INNER JOIN tusers on tusers.UserID = tusersmemb.GroupID
+			Where tusers.GroupName = 'Admin'
+		</cfquery>
+
+		<cfif GetAdmins.RecordCount EQ 0>
+			<cfquery name="GetAdminEmailAddress" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+				Select Email
+				From tusers
+				Where UserName = 'Admin'
+			</cfquery>
+		</cfif>
+
+		<cfquery name="GetPaymentInformation" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+			Select Organization_ID, Auction_ID, Payment_Amount, User_ID, Processor_Company, Processor_CustomerID, Processor_ID, Processor_Amount, Processor_Paid, Processor_CardUsed, Processor_Status, OrganizationPaid_Amount
+			From p_Auction_PaymentRecords
+			Where TContent_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#Arguments.PaymentRecordID#">
+		</cfquery>
+
+		<cfquery name="getAuction" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+			Select p_Auction_Items.Item_Title, p_Auction_Items.Current_Bid, p_Auction_Items.Auction_StartDate, p_Auction_Items.Auction_EndDate, tusers.Fname, tusers.Lname, tusers.Email
+			From p_Auction_Items INNER JOIN tusers on tusers.UserID = p_Auction_Items.HighestBid_UserID
+			Where p_Auction_Items.TContent_ID = <cfqueryparam value="#GetPaymentInformation.Auction_ID#" cfsqltype="cf_sql_integer">
+		</cfquery>
+
+		<cfquery name="GetOrganizationInfo" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+			Select BusinessName
+			From p_Auction_Organizations
+			Where TContent_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#GetPaymentInformation.Organization_ID#">
+		</cfquery>
+
+		<cfquery name="GetOrgAdminInfo" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+			Select tusers.Fname, tusers.Lname, tusers.Email, p_Auction_UserMatrix.ZipCode, p_Auction_UserMatrix.TelephoneNumber, p_Auction_UserMatrix.ReceivedSellerContract, p_Auction_UserMatrix.ReceivedSellerContractDate
+			From p_Auction_UserMatrix INNER JOIN tusers on tusers.UserID = p_Auction_UserMatrix.User_ID
+			Where p_Auction_UserMatrix.Organization_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#GetPaymentInformation.Organization_ID#">
+		</cfquery>
+
+		<cfquery name="GetBidderInfo" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+			Select Fname, Lname, Email
+			From tusers
+			Where UserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#GetPaymentInformation.User_ID#">
+		</cfquery>
+
+		<cfinclude template="EmailTemplates/SendOrganizationAdminAuctionItemPaid.cfm">
+
+		<!--- Send Email to Bidder with Document for them to print out and take to the pickup location --->
 	</cffunction>
 
 </cfcomponent>

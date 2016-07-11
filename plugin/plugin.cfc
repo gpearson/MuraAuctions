@@ -224,6 +224,35 @@ component persistent="false" accessors="true" output="false" extends="mura.plugi
 			}
 		}
 
+		var dbCheckTables = new query();
+		dbCheckTables.setDatasource("#application.configBean.getDatasource()#");
+		dbCheckTables.setSQL("Show Tables LIKE 'p_Auction_PaymentRecords'");
+		var dbCheckTablesResults = dbCheckTables.execute();
+
+		if (dbCheckTablesResults.getResult().recordcount eq 0) {
+			// Since the Database Table does not exists, Lets Create it
+			var dbCreateTable = new query();
+			dbCreateTable.setDatasource("#application.configBean.getDatasource()#");
+			dbCreateTable.setSQL("CREATE TABLE `p_Auction_PaymentRecords` ( `TContent_ID` int(11) NOT NULL AUTO_INCREMENT, `Organization_ID` int(11) NOT NULL, `Auction_ID` int(11) NOT NULL, `Payment_Amount` float(7,2) NOT NULL, `User_ID` tinytext NOT NULL, `Processor_Company` tinytext, `Processor_CustomerID` tinytext, `Processor_ID` tinytext, `Processor_Amount` tinytext, `Processor_Paid` bit(1) DEFAULT NULL, `Processor_CardUsed` tinytext, `Processor_Status` tinytext, `dateCreated` datetime NOT NULL, `lastUpdated` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP, `lastUpdateBy` tinytext, `lastUpdateByID` tinytext, `Site_ID` tinytext NOT NULL, PRIMARY KEY (`TContent_ID`) ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;");
+			var dbCreateTableResults = dbCreateTable.execute();
+		} else {
+			// Database Table Exists, We must Drop it to create it again
+			var dbDropTable = new query();
+			dbDropTable.setDatasource("#application.configBean.getDatasource()#");
+			dbDropTable.setSQL("DROP TABLE p_Auction_PaymentRecords");
+			var dbDropTableResults = dbDropTable.execute();
+
+			if (len(dbDropTableResults.getResult()) eq 0) {
+				var dbCreateTable = new query();
+				dbCreateTable.setDatasource("#application.configBean.getDatasource()#");
+					dbCreateTable.setSQL("CREATE TABLE `p_Auction_PaymentRecords` ( `TContent_ID` int(11) NOT NULL AUTO_INCREMENT, `Organization_ID` int(11) NOT NULL, `Auction_ID` int(11) NOT NULL, `Payment_Amount` float(7,2) NOT NULL, `User_ID` tinytext NOT NULL, `Processor_Company` tinytext, `Processor_CustomerID` tinytext, `Processor_ID` tinytext, `Processor_Amount` tinytext, `Processor_Paid` bit(1) DEFAULT NULL, `Processor_CardUsed` tinytext, `Processor_Status` tinytext, `dateCreated` datetime NOT NULL, `lastUpdated` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP, `lastUpdateBy` tinytext, `lastUpdateByID` tinytext, `Site_ID` tinytext NOT NULL, PRIMARY KEY (`TContent_ID`) ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;");
+				var dbCreateTableResults = dbCreateTable.execute();
+			} else {
+				 writedump(dbDropTableResults.getResult());
+				 abort;
+			}
+		}
+
 		var NewGroupAuctionAdmin = #application.userManager.read("")#;
 		NewGroupAuctionAdmin.setSiteID(Session.SiteID);
 		NewGroupAuctionAdmin.setGroupName("Auction Site Admin");

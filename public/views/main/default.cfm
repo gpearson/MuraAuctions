@@ -59,6 +59,13 @@ http://www.apache.org/licenses/LICENSE-2.0
 	<div class="panel panel-default">
 		<div class="panel-heading"><h1>Current Live Auctions</h1></div>
 		<div class="panel-body">
+			<cfif isDefined("URL.ProcessPayment")>
+				<cfif URL.ProcessPayment EQ "true">
+					<div class="alert alert-success">
+						Payment Processing has completed successfully. Within the next few minutes you will be receiving an email message with a document attached that you will print and take to the pickup location of the auction item. Please be sure to have a valid government issued picture identification with you.
+					</div>
+				</cfif>
+			</cfif>
 			<cfif isDefined("Session.getSellerOrganizationInfo")>
 				<cfif Session.getSellerOrganizationInfo.RecordCount EQ 0>
 					<div class="alert alert-warning">

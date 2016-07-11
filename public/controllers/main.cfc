@@ -397,20 +397,150 @@ http://www.apache.org/licenses/LICENSE-2.0
 	<cffunction name="processpayment" returntype="any" output="false">
 		<cfargument name="rc" required="true" type="struct" default="#StructNew()#">
 
-		<cfif not isDefined("URL.Key")>
+		<cfif not isDefined("FORM.formSubmit")>
+			<cfif not isDefined("URL.Key")>
 
-		<cfelseif isDefined("URL.Key")>
-			<cfset DecodedKey = #ToString(ToBinary(URL.Key))#>
+			<cfelseif isDefined("URL.Key")>
+				<cfset DecodedKey = #ToString(ToBinary(URL.Key))#>
 
-			<cfif ListFirst(ListFirst(Variables.DecodedKey, "&"), "=") NEQ "AuctionID">
-				<cfdump var="#Variables.DecodedKey#">
-				<cfabort>
-			<cfelseif ListFirst(ListLast(Variables.DecodedKey, "&"), "=") NEQ "UserID">
-				<cfdump var="#Variables.DecodedKey#">
-				<cfabort>
+				<cfif ListFirst(ListFirst(Variables.DecodedKey, "&"), "=") NEQ "AuctionID">
+					<cfdump var="#Variables.DecodedKey#">
+					<cfabort>
+				<cfelseif ListFirst(ListLast(Variables.DecodedKey, "&"), "=") NEQ "UserID">
+					<cfdump var="#Variables.DecodedKey#">
+					<cfabort>
+				</cfif>
+
+				<cfset AuctionID = #ListLast(ListFirst(Variables.DecodedKey, "&"), "=")#>
+				<cfset UserID = #ListLast(ListLast(Variables.DecodedKey, "&"), "=")#>
+				<cfset Session.AuctionWon = StructNew()>
+
+				<cfif Session.Mura.IsLoggedIn EQ "false">
+					<cfset Session.AuctionWon.URLKey = #URL.Key#>
+					<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?display=login">
+				<cfelseif Session.Mura.IsLoggedIn EQ "true">
+					<cfif Session.Mura.UserID NEQ Variables.UserID>
+						<cflocation addtoken="true" url="#CGI.Script_name##CGI.path_info#?doaction=logout">
+					</cfif>
+				</cfif>
+
+				<cfquery name="Session.SiteSettings" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+					Select TContent_ID, DateCreated, lastUpdateBy, lastUpdated, SellerPercentageFee, ProcessPayments_Stripe, Stripe_TestMode, Stripe_TestAPIKey, Stripe_LiveAPIKey
+					From p_Auction_SiteConfig
+					Where Site_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.siteConfig('siteID')#">
+				</cfquery>
+
+				<cfquery name="Session.AuctionWon.getAuction" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+					SELECT p_Auction_Items.TContent_ID, p_Auction_Items.Item_Title, p_Auction_Items.Item_ModelNumber, p_Auction_Items.Item_Description, p_Auction_Items.Starting_Price, p_Auction_Items.Current_Bid,
+						p_Auction_Items.Item_YearsInService, p_Auction_Items.Location_ID, p_Auction_Items.Item_AtParentLocation, p_Auction_Items.Item_InfoWebsite, p_Auction_Items.AssetTag_Number,
+						p_Auction_Items.Item_Condition, p_Auction_Items.Item_UPC, p_Auction_Organizations.BusinessName, p_Auction_Items.Auction_StartDate, p_Auction_Items.Auction_EndDate,
+						p_Auction_ProductCategories.Category_Name, p_Auction_Items.Auction_Type, p_Auction_Items.Active, p_Auction_Items.Location_ID, p_Auction_Organizations.TContent_ID AS OrganizationRecID
+					FROM p_Auction_Items INNER JOIN p_Auction_Organizations ON p_Auction_Organizations.TContent_ID = p_Auction_Items.Organization_ID
+						INNER JOIN p_Auction_ProductCategories ON p_Auction_ProductCategories.Category_ID = p_Auction_Items.Auction_Category
+					WHERE p_Auction_Items.Site_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.siteConfig('siteID')#"> AND
+						p_Auction_Items.TContent_ID = <cfqueryparam value="#Variables.AuctionID#" cfsqltype="cf_sql_integer"> and
+						p_Auction_Items.Auction_WonUserID = <cfqueryparam value="#Variables.UserID#" cfsqltype="cf_sql_varchar">
+				</cfquery>
+
+				<cfquery name="Session.AuctionWon.getSelectedAuctionPhotos" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+					Select Filename, FileContent
+					From p_Auction_ItemPhotos
+					Where Site_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.siteConfig('siteID')#"> AND
+						Auction_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#Variables.AuctionID#">
+				</cfquery>
+
+				<cfquery name="Session.AuctionWon.getOrganization" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+					Select BusinessName, PhysicalAddress, PhysicalCity, PhysicalState, PhysicalZipCode, PhysicalZip4, PrimaryVoiceNumber, BusinessWebsite
+					From p_Auction_Organizations
+					Where TContent_ID = <cfqueryparam value="#Session.AuctionWon.getAuction.OrganizationRecID#" cfsqltype="cf_sql_integer">
+				</cfquery>
+
+				<cfif Session.AuctionWon.getAuction.Location_ID NEQ 0>
+					<cfquery name="Session.AuctionWon.getLocationOfAuctionItem" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+						Select LocationName, PhysicalAddress, PhysicalCity, PhysicalState, PhysicalZipCode, PhysicalZip4, PrimaryVoiceNumber
+						From p_Auction_Organizations
+						Where TContent_ID = <cfqueryparam value="#Session.AuctionWon.getAuction.Location_ID#" cfsqltype="cf_sql_integer">
+					</cfquery>
+				</cfif>
 			</cfif>
-		</cfif>
+		<cfelseif isDefined("FORM.formSubmit")>
+			<cfset card = StructNew()>
+			<cfset card.number = #FORM.Number#>
+			<cfset card.cvc = #FORM.CVC#>
+			<cfset card.EXP_Year = #FORM.expyear#>
+			<cfset card.EXP_Month = #FORM.expmonth#>
+			<cfswitch expression="#Session.AuctionWon.getAuction.Auction_Type#">
+				<cfcase value="Fixed">
+					<cfset Session.StripeToken = Session.Stripe.createToken(card, Session.AuctionWon.getAuction.Current_Bid)>
+				</cfcase>
+				<cfcase value="Auction">
 
+				</cfcase>
+			</cfswitch>
+			<cfset GetAllCustomers = #Session.Stripe.readCustomer()#>
+			<cfset CustomerID = "">
+			<cfloop from="1" to="#ArrayLen(GetAllCustomers.data)#" index="cust">
+				<cfif GetAllCustomers.data[cust]["email"] EQ #Session.Mura.Email#>
+					<cfset CustomerID = GetAllCustomers.data[cust].id>
+					<cfbreak>
+				</cfif>
+			</cfloop>
+			<cfif LEN(CustomerID) EQ 0>
+				<cfset Session.StripeCustomer = Session.Stripe.createCustomer(card = Session.StripeToken.id, email="#Session.Mura.Email#", description="#Session.Mura.FName# #Session.Mura.LName#")>
+				<cfswitch expression="#Session.AuctionWon.getAuction.Auction_Type#">
+					<cfcase value="Fixed">
+						<cfset Session.StripeCharge = Session.Stripe.createcharge(amount=Session.AuctionWon.getAuction.Current_Bid, customer=Session.StripeCustomer.id, card=Session.StripeToken.card.id, description="Auction ID: #Session.AuctionWon.getAuction.TContent_ID# ; #Session.AuctionWon.getAuction.Item_Title#")>
+					</cfcase>
+					<cfcase value="Auction">
+
+					</cfcase>
+				</cfswitch>
+			<cfelse>
+				<cfset Session.StripeCustomer = Session.Stripe.updateCustomer(customerid = Variables.CustomerID, card = Session.StripeToken.id)>
+				<cfswitch expression="#Session.AuctionWon.getAuction.Auction_Type#">
+					<cfcase value="Fixed">
+						<cfset Session.StripeCharge = Session.Stripe.createcharge(amount=Session.AuctionWon.getAuction.Current_Bid, customer=CustomerID, card=Session.StripeToken.card.id, description="Auction ID: #Session.AuctionWon.getAuction.TContent_ID# ; #Session.AuctionWon.getAuction.Item_Title#")>
+					</cfcase>
+					<cfcase value="Auction">
+
+					</cfcase>
+				</cfswitch>
+			</cfif>
+			<cfset Session.FormErrors = #ArrayNew()#>
+
+			<cfif not isDefined("Session.StripeCharge.failure_code")>
+				<cfswitch expression="#Session.AuctionWon.getAuction.Auction_Type#">
+					<cfcase value="Fixed">
+						<cfquery name="insertPaymentRecord" result="InsertNewRecord" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+							Insert into p_Auction_PaymentRecords(Organization_ID, Payment_Amount, User_ID, Auction_ID, Processor_Company, Processor_CustomerID, Processor_ID, Processor_Amount, Processor_Paid, Processor_CardUsed, Processor_Status, dateCreated, lastUpdated, lastUpdateBy, lastUpdateByID, Site_ID, OrganizationPaid)
+							Values(
+								<cfqueryparam cfsqltype="cf_sql_integer" value="#Session.AuctionWon.getAuction.OrganizationRecID#">,
+								<cfqueryparam cfsqltype="cf_sql_money" value="#Session.AuctionWon.getAuction.Current_Bid#">,
+								<cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.UserID#">,
+								<cfqueryparam cfsqltype="cf_sql_integer" value="#Session.AuctionWon.getAuction.TContent_ID#">,
+								<cfqueryparam cfsqltype="cf_sql_varchar" value="Stripe">,
+								<cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.StripeCharge.customer#">,
+								<cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.StripeCharge.id#">,
+								<cfqueryparam cfsqltype="cf_sql_float" value="#Session.AuctionWon.getAuction.Current_Bid#">,
+								<cfqueryparam cfsqltype="cf_sql_bit" value="#Session.StripeCharge.paid#">,
+								<cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.StripeCharge.source.brand#">,
+								<cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.StripeCharge.status#">,
+								<cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">,
+								<cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">,
+								<cfqueryparam value="#Session.Mura.Fname# #Session.Mura.LName#" cfsqltype="cf_sql_varchar">,
+								<cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.UserID#">,
+								<cfqueryparam value="#rc.$.siteConfig('siteID')#" cfsqltype="cf_sql_varchar">,
+								<cfqueryparam cfsqltype="cf_sql_bit" value="0">
+							)
+						</cfquery>
+					</cfcase>
+				</cfswitch>
+				<cfset newRecordID = InsertNewRecord.generatedkey>
+				<cfset SendEmailCFC = createObject("component","plugins/#HTMLEditFormat(rc.pc.getPackage())#/library/components/EmailServices")>
+				<cfset temp = #SendEmailCFC.SendPaymentEmailToAdministrators(rc, Variables.newRecordID)#>
+			</cfif>
+			<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=public:main.default&ProcessPayment=True">
+		</cfif>
 	</cffunction>
 
 </cfcomponent>
