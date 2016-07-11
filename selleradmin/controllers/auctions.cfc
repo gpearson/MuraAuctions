@@ -235,7 +235,18 @@ http://www.apache.org/licenses/LICENSE-2.0
 					<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=selleradmin:main.default&UserAction=AuctionCreated&Successful=True">
 				</cfcase>
 				<cfcase value="Fixed">
-
+					<cfquery name="updateAuctionRecord" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+						Update p_Auction_Items
+						Set Auction_Type = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.AuctionType#">,
+							Active = <cfqueryparam cfsqltype="cf_sql_bit" value="#FORM.AuctionAvailable#">,
+							Starting_Price = <cfqueryparam cfsqltype="cf_sql_double" value="#FORM.AuctionStartPrice#">,
+							Current_Bid = <cfqueryparam cfsqltype="cf_sql_double" value="#FORM.AuctionStartPrice#">,
+							lastUpdated = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">,
+							lastUpdateBy = <cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.currentUser('userName')#">,
+							lastUpdateByID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.UserID#">
+						Where TContent_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#FORM.AuctionID#">
+					</cfquery>
+					<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=selleradmin:main.default&UserAction=AuctionCreated&Successful=True">
 				</cfcase>
 			</cfswitch>
 		</cfif>

@@ -34,6 +34,9 @@
 						</li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
+						<li class="<cfif rc.action contains 'public:faq'>active</cfif>">
+							<a href="#buildURL('public:faq.default')#"><i class="icon-info-sign"></i> Questions?</a>
+						</li>
 						<li class="<cfif rc.action contains 'public:contactus'>active</cfif>">
 							<a href="#buildURL('public:contactus.sendfeedback')#"><i class="icon-info-sign"></i> Contact Us</a>
 						</li>

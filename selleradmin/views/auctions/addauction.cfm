@@ -285,13 +285,13 @@
 						<cfinput type="hidden" name="formSubmit" value="true">
 						<div class="panel-body">
 							<div class="form-group">
-								<label for="AuctionStartPrice" class="control-label col-sm-3">Buy Now Price:&nbsp;</label>
+								<label for="AuctionStartPrice" class="control-label col-sm-3">Starting Bid Price:&nbsp;</label>
 								<div class="col-sm-8">
 									<cfinput type="text" class="form-control" id="AuctionStartPrice" name="AuctionStartPrice" required="yes" maxlength="9" validate="regular_expression" pattern="/^[0-9]+(\.[0-9]{0,2})?$/">
 								</div>
 							</div>
 							<div class="form-group">
-								<label for="AuctionAvailable" class="control-label col-sm-3">Item Ready for Purchase/Bids:&nbsp;</label>
+								<label for="AuctionAvailable" class="control-label col-sm-3">Item Ready for Bids:&nbsp;</label>
 								<div class="col-sm-8">
 									<cfselect name="AuctionAvailable" class="form-control" Required="Yes" Multiple="No" query="AuctionAvailableQuery" value="ID" Display="OptionName"  queryposition="below"></cfselect>
 								</div>
@@ -301,7 +301,7 @@
 							<label for="ItemPrimaryPhoto" class="control-label col-sm-3">Photos:&nbsp;</label>
 							<div class="col-sm-8">
 								<div id="uploader">
-									<p>Youyr Browser does not have Flash, Silverlight or HTML5 Support.</p>
+									<p>Your Browser does not have Flash, Silverlight or HTML5 Support.</p>
 								</div>
 							</div>
 						</div>
@@ -373,7 +373,102 @@
 					</script>
 				</cfcase>
 				<cfcase value="Fixed">
+					<div class="panel-heading"><h1>Add Auction Additional Information</h1></div>
+					<br /><br />
+					<cfform action="" method="post" id="AuctionAdditionalInfo" class="form-horizontal" enctype="multipart/form-data">
+						<cfinput type="hidden" name="SiteID" value="#rc.$.siteConfig('siteID')#">
+						<cfinput type="hidden" name="AuctionID" value="#URL.AuctionID#">
+						<cfinput type="hidden" name="AuctionType" value="#URL.AuctionType#">
+						<cfinput type="hidden" name="UpdateAuctionInfo" value="true">
+						<cfinput type="hidden" name="formSubmit" value="true">
+						<div class="panel-body">
+							<div class="form-group">
+								<label for="AuctionStartPrice" class="control-label col-sm-3">Buy It Now Price:&nbsp;</label>
+								<div class="col-sm-8">
+									<cfinput type="text" class="form-control" id="AuctionStartPrice" name="AuctionStartPrice" required="yes" maxlength="9" validate="regular_expression" pattern="/^[0-9]+(\.[0-9]{0,2})?$/">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="AuctionAvailable" class="control-label col-sm-3">Item Ready for Purchase:&nbsp;</label>
+								<div class="col-sm-8">
+									<cfselect name="AuctionAvailable" class="form-control" Required="Yes" Multiple="No" query="AuctionAvailableQuery" value="ID" Display="OptionName"  queryposition="below"></cfselect>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="ItemPrimaryPhoto" class="control-label col-sm-3">Photos:&nbsp;</label>
+							<div class="col-sm-8">
+								<div id="uploader">
+									<p>Your Browser does not have Flash, Silverlight or HTML5 Support.</p>
+								</div>
+							</div>
+						</div>
+						<div class="panel-footer">
+							<cfinput type="Submit" name="CreateUserAccount" class="btn btn-primary pull-right" value="Add Auction Additional Information"><br /><br />
+						</div>
+					</cfform>
+					<script type="text/javascript">
+						// Initialize the widget when the DOM is ready
+						$(function() {
+							$("##uploader").plupload({
+								// General settings
+								runtimes : 'html5,flash,silverlight,html4',
+								url : '#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=selleradmin:auctions.uploadpictures&AuctionID=#URL.AuctionID#',
+								// User can upload no more then 20 files in one go (sets multiple_queues to false)
+								max_file_count: 20,
+								chunk_size: '1mb',
+								// Resize images on clientside if we can
+								resize : {
+									width : 200,
+									height : 200,
+									quality : 90,
+									crop: true // crop to exact dimensions
+								},
+								filters : {
+									// Maximum file size
+									max_file_size : '1000mb',
+									// Specify what files to browse for
+									mime_types: [
+										{title : "Image files", extensions : "jpg,gif,png"},
+										{title : "Zip files", extensions : "zip"}
+									]
+								},
 
+								// Rename files by clicking on their titles
+								rename: true,
+
+								// Sort files
+								sortable: true,
+								// Enable ability to drag'n'drop files onto the widget (currently only HTML5 supports that)
+								dragdrop: true,
+								// Views to activate
+								views: {
+									list: true,
+									thumbs: false, // Show thumbs
+									active: 'list'
+								},
+								// Flash settings
+								flash_swf_url : '/plugins/#HTMLEditFormat(rc.pc.getPackage())#/includes/js/plupload/js/Moxie.swf',
+								// Silverlight settings
+								silverlight_xap_url : '/plugins/#HTMLEditFormat(rc.pc.getPackage())#/includes/js/plupload/js/Moxie.xap'
+							});
+
+							// Handle the case when form was submitted before uploading has finished
+							$('##AuctionAdditionalInfo').submit(function(e) {
+								// Files in queue upload them first
+								if ($('##uploader').plupload('getFiles').length > 0) {
+									// When all files are uploaded submit form
+									$('##uploader').on('complete', function() {
+										$('##AuctionAdditionalInfo')[0].submit();
+									});
+									$('##uploader').plupload('start');
+								} else {
+									alert("You must have at least one file in the queue.");
+								}
+								return false; // Keep the form from submitting
+							});
+						});
+					</script>
 				</cfcase>
 			</cfswitch>
 		</cfif>

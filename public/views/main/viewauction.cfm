@@ -158,7 +158,7 @@
 		</div>
 
 		<div class="panel-heading"><h1>Bid Information</h1></div>
-		<cfform action="" method="post" id="CreateNewUser" class="form-horizontal">
+		<cfform action="" method="post" id="BidOnAuction" class="form-horizontal">
 			<cfinput type="hidden" name="SiteID" value="#rc.$.siteConfig('siteID')#">
 			<cfinput type="hidden" name="formSubmit" value="true">
 			<cfinput type="hidden" name="AuctionID" value="#URL.AuctionID#">
@@ -172,38 +172,62 @@
 					<br /><br />
 					<div class="alert alert-danger"><p>#Session.FormErrors[1].Message#</p></div>
 				</cfif>
+
 				<cfif DateDiff("d", Now(), Session.getSelectedAuction.Auction_StartDate) LTE 0>
-					<div class="container-fluid">
-						<div class="row">
-							<div class="col-sm-3"><strong>Starting Bid</strong></div>
-							<div class="col-sm-6">#DollarFormat(Session.getSelectedAuction.Starting_Price)#</div>
-							<div class="col-sm-3"><strong>Place Your Bid</strong></div>
-						</div>
-						<div class="row">
-							<div class="col-sm-3"><strong>Current Bid</strong></div>
-							<div class="col-sm-6">#DollarFormat(Session.getSelectedAuction.Current_Bid)#</div>
-							<div class="col-sm-3"><input type="text" name="UserBid" id="UserBid"></div>
-						</div>
-						<div class="row">
-							<div class="col-sm-3"><strong>Highest Bidder</strong></div>
-							<div class="col-sm-6">
-								<cfif Session.getSelectedAuctionCurrentBid.RecordCount>
-									#Session.getSelectedAuctionCurrentBid.Fname# #Session.getSelectedAuctionCurrentBid.Lname#
-								</cfif>
+					<cfswitch expression="#Session.getSelectedAuction.Auction_Type#">
+						<cfcase value="Auction">
+							<div class="container-fluid">
+								<div class="row">
+									<div class="col-sm-3"><strong>Starting Bid</strong></div>
+									<div class="col-sm-6">#DollarFormat(Session.getSelectedAuction.Starting_Price)#</div>
+									<div class="col-sm-3"><strong>Place Your Bid</strong></div>
+								</div>
+								<div class="row">
+									<div class="col-sm-3"><strong>Current Bid</strong></div>
+									<div class="col-sm-6">#DollarFormat(Session.getSelectedAuction.Current_Bid)#</div>
+									<div class="col-sm-3"><input type="text" name="UserBid" id="UserBid"></div>
+								</div>
+								<div class="row">
+									<div class="col-sm-3"><strong>Highest Bidder</strong></div>
+									<div class="col-sm-6">
+										<cfif Session.getSelectedAuctionCurrentBid.RecordCount>
+											#Session.getSelectedAuctionCurrentBid.Fname# #Session.getSelectedAuctionCurrentBid.Lname#
+										</cfif>
+									</div>
+									<div class="col-sm-3"></div>
+								</div>
 							</div>
-							<div class="col-sm-3"></div>
-						</div>
-					</div>
+						</cfcase>
+						<cfcase value="Fixed">
+							<input type="hidden" name="UserBid" id="UserBid" Value="#Session.getSelectedAuction.Starting_Price#">
+							<div class="container-fluid">
+								<div class="row">
+									<div class="col-sm-3"><strong>Fixed Bid Amount</strong></div>
+									<div class="col-sm-6">#DollarFormat(Session.getSelectedAuction.Starting_Price)#</div>
+									<div class="col-sm-3"></div>
+								</div>
+							</div>
+						</cfcase>
+					</cfswitch>
 				</cfif>
 			</div>
 			<div class="panel-footer">
 				<a href="#buildURL('public:main.default')#" class="btn btn-primary pull-left">Aucton Listing</a>
 				<cfif DateDiff("d", Now(), Session.getSelectedAuction.Auction_StartDate) LTE 0>
-					<input type="Submit" name="CreateUserAccount" class="btn btn-primary pull-right" value="Bid on Item"><br /><br />
+					<cfswitch expression="#Session.getSelectedAuction.Auction_Type#">
+						<cfcase value="Fixed">
+							<input type="Submit" name="CreateUserAccount" class="btn btn-primary pull-right" value="Buy Now">
+						</cfcase>
+						<cfcase value="Auction">
+							<input type="Submit" name="CreateUserAccount" class="btn btn-primary pull-right" value="Bid on Item">
+						</cfcase>
+					</cfswitch>
+					<br /><br />
 				<cfelse>
 					<br /><br />
 				</cfif>
 			</div>
 		</cfform>
 	</div>
+
 </cfoutput>

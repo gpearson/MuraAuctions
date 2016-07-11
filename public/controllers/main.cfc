@@ -178,6 +178,25 @@ http://www.apache.org/licenses/LICENSE-2.0
 			<cfelse>
 				<cfset SendEmailCFC = createObject("component","plugins/#HTMLEditFormat(rc.pc.getPackage())#/library/components/EmailServices")>
 				<cfswitch expression="#getSelectedAuction.Auction_Type#">
+					<cfcase value="Fixed">
+						<cfquery name="insertAuctionBids" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+							insert into p_Auction_Bids(Auction_ID, User_ID, Bid_Amount, dateCreated)
+							Values(
+								<cfqueryparam cfsqltype="cf_sql_integer" value="#FORM.AuctionID#">,
+								<cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.UserID#">,
+								<cfqueryparam cfsqltype="cf_sql_money" value="#FORM.UserBid#">,
+								<cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">
+							)
+						</cfquery>
+						<cfquery name="updateAuctionInfo" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+							Update p_Auction_Items
+							Set Auction_Won = <cfqueryparam cfsqltype="cf_sql_bit" value="1">,
+								Auction_WonDate = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">,
+								Auction_WonUserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.UserID#">
+							Where TContent_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#FORM.AuctionID#">
+						</cfquery>
+						<cfset SendContactEmail = #SendEmailCFC.SendAuctionWonNotification(rc, Session.Mura.UserID, FORM.AuctionID)#>
+					</cfcase>
 					<cfcase value="Auction">
 						<cfquery name="getAuctionBids" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
 							Select Bid_Amount, User_ID
@@ -270,6 +289,25 @@ http://www.apache.org/licenses/LICENSE-2.0
 		<cfelse>
 			<cfset SendEmailCFC = createObject("component","plugins/#HTMLEditFormat(rc.pc.getPackage())#/library/components/EmailServices")>
 			<cfswitch expression="#getSelectedAuction.Auction_Type#">
+				<cfcase value="Fixed">
+					<cfquery name="insertAuctionBids" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+						insert into p_Auction_Bids(Auction_ID, User_ID, Bid_Amount, dateCreated)
+						Values(
+							<cfqueryparam cfsqltype="cf_sql_integer" value="#FORM.AuctionID#">,
+							<cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.UserID#">,
+							<cfqueryparam cfsqltype="cf_sql_money" value="#FORM.UserBid#">,
+							<cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">
+						)
+					</cfquery>
+					<cfquery name="updateAuctionInfo" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+						Update p_Auction_Items
+						Set Auction_Won = <cfqueryparam cfsqltype="cf_sql_bit" value="1">,
+							Auction_WonDate = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">,
+							Auction_WonUserID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.UserID#">
+						Where TContent_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#FORM.AuctionID#">
+					</cfquery>
+					<cfset SendContactEmail = #SendEmailCFC.SendAuctionWonNotification(rc, Session.Mura.UserID, FORM.AuctionID)#>
+				</cfcase>
 				<cfcase value="Auction">
 					<cfquery name="getAuctionBids" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
 						Select Bid_Amount, User_ID

@@ -194,4 +194,24 @@
 		<cfinclude template="EmailTemplates/OutBidConfirmationToIndividual.cfm">
 	</cffunction>
 
+	<cffunction name="SendAuctionWonNotification" ReturnType="Any" Output="False">
+		<cfargument name="rc" type="struct" Required="True">
+		<cfargument name="UserID" type="String" Required="True">
+		<cfargument name="AuctionID" type="String" Required="True">
+
+		<cfquery name="getAuction" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+			Select Item_Title, Auction_Type, Starting_Price, Current_Bid, Auction_StartDate, Auction_EndDate
+			From p_Auction_Items
+			Where TContent_ID = <cfqueryparam value="#Arguments.AuctionID#" cfsqltype="cf_sql_integer">
+		</cfquery>
+
+		<cfquery name="getWinnerInfo" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+			Select Fname, Lname, Email
+			From tusers
+			Where UserID = <cfqueryparam value="#Arguments.UserID#" cfsqltype="cf_sql_varchar">
+		</cfquery>
+		<cfinclude template="EmailTemplates/SendAuctionWinnerNotification.cfm">
+
+	</cffunction>
+
 </cfcomponent>

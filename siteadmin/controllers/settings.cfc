@@ -673,21 +673,54 @@ http://www.apache.org/licenses/LICENSE-2.0
 					<cfset Session.FormErrors = #ArrayNew()#>
 				</cfif>
 				<cfquery name="Session.SiteSettings" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
-					Select TContent_ID, DateCreated, lastUpdateBy, lastUpdated, SellerPercentageFee
+					Select TContent_ID, DateCreated, lastUpdateBy, lastUpdated, SellerPercentageFee, ProcessPayments_Stripe, Stripe_TestMode, Stripe_TestAPIKey, Stripe_LiveAPIKey
 					From p_Auction_SiteConfig
 					Where Site_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.siteConfig('siteID')#">
 				</cfquery>
 			</cflock>
 		<cfelse>
+			<cfif FORM.ProcessWithStripe EQ "----">
+				<cfset FORM.ProcessWithStripe = 0>
+			</cfif>
+
+			<cfif FORM.StripeTestMode EQ "----">
+				<cfset FORM.StripeTestMode = 1>
+			</cfif>
+
 			<cfquery name="updateSiteSettings" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
 				update p_Auction_SiteConfig
 				Set SellerPercentageFee = <cfqueryparam cfsqltype="cf_sql_decimal" value="#FORM.SellerPercentageFee#">,
+					ProcessPayments_Stripe = <cfqueryparam cfsqltype="cf_sql_bit" value="#FORM.ProcessWithStripe#">,
+					Stripe_TestMode = <cfqueryparam cfsqltype="cf_sql_bit" value="#FORM.StripeTestMode#">,
 					lastUpdated = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">,
 					lastUpdateBy = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.Fname# #Session.Mura.LName#">
 				Where Site_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.siteConfig('siteID')#"> and
 					TContent_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#FORM.SiteSettingRecNo#">
 			</cfquery>
-			<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=siteadmin:main.default">
+
+			<cfif LEN(FORM.Stripe_TestAPIKey)>
+				<cfquery name="updateSiteSettings" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+					update p_Auction_SiteConfig
+					Set Stripe_TestAPIKey = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.Stripe_TestAPIKey#">,
+						lastUpdated = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">,
+						lastUpdateBy = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.Fname# #Session.Mura.LName#">
+					Where Site_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.siteConfig('siteID')#"> and
+						TContent_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#FORM.SiteSettingRecNo#">
+				</cfquery>
+			</cfif>
+
+			<cfif LEN(FORM.Stripe_LiveAPIKey)>
+				<cfquery name="updateSiteSettings" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+					update p_Auction_SiteConfig
+					Set Stripe_LiveAPIKey = <cfqueryparam cfsqltype="cf_sql_varchar" value="#FORM.Stripe_LiveAPIKey#">,
+						lastUpdated = <cfqueryparam cfsqltype="cf_sql_timestamp" value="#Now()#">,
+						lastUpdateBy = <cfqueryparam cfsqltype="cf_sql_varchar" value="#Session.Mura.Fname# #Session.Mura.LName#">
+					Where Site_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.siteConfig('siteID')#"> and
+						TContent_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#FORM.SiteSettingRecNo#">
+				</cfquery>
+			</cfif>
+
+			<cflocation url="#CGI.Script_name##CGI.path_info#?#HTMLEditFormat(rc.pc.getPackage())#action=siteadmin:main.default&UserAction=SerttingsUpdated&Successful=True">
 		</cfif>
 
 	</cffunction>

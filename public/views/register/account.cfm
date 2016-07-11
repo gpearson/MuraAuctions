@@ -20,6 +20,7 @@
 				<!--- <cfinput type="hidden" name="captchaHash" id="captchaHash" value="#captchaHash#"> --->
 				<div class="panel-body">
 					<div class="well">Please complete this form to begin the process on registering for an account on this site. You can register for either a seller's account or a buyer's account.</div>
+					<div class="alert alert-warning" role="alert">The personal information entered on this form must match a valid government issued picture identification card. Any auctions that are won the winning buyer will bring a document with a scannable code on it along with a valid government identification card to the pickup location in order to retrieve the item.</div>
 					<div class="panel-heading"><h2>Your Information</h2></div>
 					<div class="form-group">
 						<label for="YourFirstName" class="control-label col-sm-3">First Name:&nbsp;</label>
