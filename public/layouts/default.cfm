@@ -1,3 +1,10 @@
+<cfquery name="getParentCategories" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+	Select Category_ID, Category_Name
+	From p_Auction_ProductCategories
+	Where Site_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.siteConfig('siteID')#"> and ParentCategory_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="0">
+	Order By Category_Name ASC
+</cfquery>
+
 <cfoutput>
 	<div class="container">
 		<!--- PRIMARY NAV --->
@@ -44,16 +51,38 @@
 				</div>
 			</nav>
 		</div>
-		<div class="row-fluid">
-			<!--- SUB-NAV --->
-			<div class="span3">
-				<ul class="nav nav-list">
+		<div class="container-fluid">
+			<div class="row">
+				<!--- SUB-NAV --->
+				<div class="col-sm-2">
+					<ul class="nav nav-list">
+						<li><a href="#buildURL('public:main.default')#">Display All Auctions</a></li>
+						<cfloop query="getParentCategories">
+							<cfquery name="getParentChildrenCategories" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
+								Select Category_ID, Category_Name
+								From p_Auction_ProductCategories
+								Where Site_ID = <cfqueryparam cfsqltype="cf_sql_varchar" value="#rc.$.siteConfig('siteID')#"> and ParentCategory_ID = <cfqueryparam cfsqltype="cf_sql_integer" value="#getParentCategories.Category_ID#">
+								Order By Category_Name ASC
+							</cfquery>
+							<cfif getParentChildrenCategories.RecordCount>
+								<li><a href="#buildURL('public:main.default')#&DisplayCategory=#getParentCategories.Category_ID#">#getParentCategories.Category_Name#</a>
+									<ul>
+										<cfloop query="getParentChildrenCategories">
+											<li><a href="#buildURL('public:main.default')#&DisplayCategory=#getParentChildrenCategories.Category_ID#">#getParentChildrenCategories.Category_Name#</a></li>
+										</cfloop>
+									</ul>
+								</li>
+							<cfelse>
+								<li><a href="#buildURL('public:main.default')#&DisplayCategory=#getParentCategories.Category_ID#">#getParentCategories.Category_Name#</a></li>
+							</cfif>
 
-				</ul>
-			</div>
-			<!--- BODY --->
-			<div class="span9">
-				#body#
+						</cfloop>
+					</ul>
+				</div>
+				<!--- BODY --->
+				<div class="col-sm-10">
+					#body#
+				</div>
 			</div>
 		</div>
 	</div>

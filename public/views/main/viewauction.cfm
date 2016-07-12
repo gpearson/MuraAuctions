@@ -1,4 +1,41 @@
 <cfoutput>
+	<style type="text/css">
+		/* Customization Style of SyoTimer */
+        .timer{
+			text-align: center;
+			margin: 30px auto 0;
+			padding: 0 0 10px;
+			border-bottom: 2px solid ##80a3ca;
+		}
+		.timer .table-cell{
+			display: inline-block;
+			margin: 0 5px;
+			width: 79px;
+			background: url(/plugins/#HTMLEditFormat(rc.pc.getPackage())#/includes/assets/images/timer.png) no-repeat 0 0;
+		}
+        .timer .table-cell .tab-val{
+            font-size: 35px;
+            color: ##80a3ca;
+            height: 81px;
+            line-height: 81px;
+            margin: 0 0 5px;
+        }
+        .timer .table-cell .tab-metr{
+            font-family: Arial;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        ##simple_timer.timer .table-cell.day,
+        ##periodic_timer_days.timer .table-cell.hour{
+            width: 120px;
+            background-image: url(/plugins/#HTMLEditFormat(rc.pc.getPackage())#/includes/assets/images/timer_long.png);
+        }
+		.vcenter {
+			display: inline-block;
+			vertical-align: middle;
+			float: none;
+		}
+    </style>
 	<cfif Session.Mura.IsLoggedIn EQ True>
 		<table class="table">
 			<tr>
@@ -7,6 +44,26 @@
 			</tr>
 		</table>
 	</cfif>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			/* Simple Timer. The countdown to 20:30 2100.05.09
+			* --------------------------------------------------------- */
+			$('##AuctionEndTimer').syotimer({
+				year: #Year(Session.getSelectedAuction.Auction_EndDate)#,
+				month: #Month(Session.getSelectedAuction.Auction_EndDate)#,
+				day: #Day(Session.getSelectedAuction.Auction_EndDate)#,
+				hour: 23,
+				minute: 59,
+			});
+			$('##AuctionStartsTimer').syotimer({
+				year: #Year(Session.getSelectedAuction.Auction_StartDate)#,
+				month: #Month(Session.getSelectedAuction.Auction_StartDate)#,
+				day: #Day(Session.getSelectedAuction.Auction_StartDate)#,
+				hour: 0,
+				minute: 0,
+			});
+		});
+    </script>
 	<div class="panel panel-default">
 		<div class="panel-heading"><h1>Viewing Auction: #Session.getSelectedAuction.Item_Title#</h1></div>
 		<div class="panel-body">
@@ -131,19 +188,29 @@
 						</cfif>
 
 						<div class="row">
-							<div class="col-sm-3"><strong>
+							<div class="col-sm-3 vcenter"><strong>
 								<cfif DateDiff("d", Now(), Session.getSelectedAuction.Auction_StartDate) GTE 1>
-									Auction Starts
+									Auction Starts in
 								<cfelse>
 									Auction Started
 								</cfif>
 								</strong></div>
-							<div class="col-sm-6">#DateFormat(Session.getSelectedAuction.Auction_StartDate, "dddd, mmm dd, yyyy")#</div>
+							<div class="col-sm-7 vcenter">
+								<cfif DateDiff("d", Now(), Session.getSelectedAuction.Auction_StartDate) GTE 1>
+									<div id="AuctionStartsTimer"></div>
+								<cfelse>
+									#DateFormat(Session.getSelectedAuction.Auction_StartDate, "dddd, mmm dd, yyyy")#
+								</cfif>
+							</div>
 						</div>
-						<div class="row">
-							<div class="col-sm-3"><strong>Auction Ends</strong></div>
-							<div class="col-sm-6">#DateFormat(Session.getSelectedAuction.Auction_EndDate, "dddd, mmm dd, yyyy")#</div>
-						</div>
+						<cfif DateDiff("d", Now(), Session.getSelectedAuction.Auction_StartDate) LT 1>
+							<div class="row">
+								<div class="col-sm-3 vcenter"><strong>Auction Ends</strong></div>
+								<div class="col-sm-7 vcenter">
+									<div id="AuctionEndTimer"></div>
+								</div>
+							</div>
+						</cfif>
 					</div>
 				</div>
 			</div>

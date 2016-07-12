@@ -38,9 +38,8 @@ http://www.apache.org/licenses/LICENSE-2.0
 
 		<cfquery name="Session.getActiveAuctions" Datasource="#rc.$.globalConfig('datasource')#" username="#rc.$.globalConfig('dbusername')#" password="#rc.$.globalConfig('dbpassword')#">
 			SELECT p_Auction_Items.TContent_ID, p_Auction_Items.Item_Title, p_Auction_Items.Item_ModelNumber, p_Auction_Items.Item_Description, p_Auction_Items.Starting_Price,
-				p_Auction_Items.Item_Condition, p_Auction_Items.Item_UPC, p_Auction_Organizations.BusinessName, p_Auction_Items.Item_PrimaryPhoto,
-				p_Auction_Items.Item_SecondaryPhoto, p_Auction_Items.Item_TertiaryPhoto, p_Auction_Items.Auction_StartDate, p_Auction_Items.Auction_EndDate,
-				p_Auction_ProductCategories.Category_Name, p_Auction_Items.Auction_Type, p_Auction_Items.Active, p_Auction_Items.Active, p_Auction_Organizations.TContent_ID AS OrganizationRecID,
+				p_Auction_Items.Item_Condition, p_Auction_Items.Item_UPC, p_Auction_Organizations.BusinessName, p_Auction_Items.Auction_StartDate, p_Auction_Items.Auction_EndDate,
+				p_Auction_ProductCategories.Category_Name, p_Auction_Items.Auction_Type, p_Auction_Items.Active, p_Auction_Items.Auction_Category, p_Auction_Organizations.TContent_ID AS OrganizationRecID,
 				p_Auction_Items.Current_Bid
 			FROM p_Auction_Items INNER JOIN p_Auction_Organizations ON p_Auction_Organizations.TContent_ID = p_Auction_Items.Organization_ID
 				INNER JOIN p_Auction_ProductCategories ON p_Auction_ProductCategories.Category_ID = p_Auction_Items.Auction_Category
@@ -54,17 +53,21 @@ http://www.apache.org/licenses/LICENSE-2.0
 		<cfargument name="rows" required="no" default="10" hint="Number of Rows to display per page">
 		<cfargument name="sidx" required="no" default="" hint="Sort Column">
 		<cfargument name="sord" required="no" default="ASC" hint="Sort Order">
+		<cfargument name="CategoryID" required="no" hint="Display Category To Display">
 
 		<cfset var arrAuctions = ArrayNew(1)>
 		<cfquery name="getAuctions" dbtype="Query">
-			Select TContent_ID, Item_Title, Starting_Price, Auction_StartDate, Auction_EndDate, Active, Current_Bid
+			Select TContent_ID, Item_Title, Starting_Price, Auction_StartDate, Auction_EndDate, Active, Current_Bid, Auction_Category
 			From Session.getActiveAuctions
-
+			<cfif Arguments.CategoryID NEQ "">
+				Where Auction_Category = #Arguments.CategoryID#
+			</cfif>
 			<cfif Arguments.sidx NEQ "">
 				Order By #Arguments.sidx# #Arguments.sord#
 			<cfelse>
 				Order by Auction_StartDate #Arguments.sord#, Item_Title #Arguments.sord#
 			</cfif>
+
 		</cfquery>
 
 		<!--- Calculate the Start Position for the loop query. So, if you are on 1st page and want to display 4 rows per page, for first page you start at: (1-1)*4+1 = 1.

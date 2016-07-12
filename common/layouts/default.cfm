@@ -22,6 +22,7 @@ http://www.apache.org/licenses/LICENSE-2.0
 		<script type="text/ecmascript" src="#pluginPath#/includes/assets/js/jquery-ui-1.9.2.custom.min.js"></script>
 		<script type="text/ecmascript" src="#pluginPath#/library/jqGrid_5.1.0/js/i18n/grid.locale-en.js"></script>
 	    <script type="text/ecmascript" src="#pluginPath#/library/jqGrid_5.1.0/js/jquery.jqGrid.min.js"></script>
+	    <script type="text/javascript" src="#pluginPath#/includes/assets/js/jquery.syotimer.js"></script>
 	</cfoutput></cfsavecontent>
 	<cfhtmlhead text="#htmlhead#" />
 	<cfset request.mfw1cssexists = true>

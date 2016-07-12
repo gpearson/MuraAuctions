@@ -114,18 +114,17 @@ http://www.apache.org/licenses/LICENSE-2.0
 		$(document).ready(function () {
 			var selectedRow = 0;
 			$("##jqGrid").jqGrid({
-				url: "/plugins/#rc.pc.getPackage()#/public/controllers/main.cfc?method=getAllActiveAuctions",
+				url: "/plugins/#rc.pc.getPackage()#/public/controllers/main.cfc?method=getAllActiveAuctions<cfif isDefined('URL.DisplayCategory')>&CategoryID=#URL.DisplayCategory#</cfif>",
 				// we set the changes to be made at client side using predefined word clientArray
 				datatype: "json",
-				colNames: ["Auction ID","Item Name","Starting Bid","Current Bid","Begin Date","End Date","Active"],
+				colNames: ["Auction ID","Item Name","Starting Bid","Current Bid","Auction Starts","Auction Ends"],
 				colModel: [
 					{ label: 'Auction ID', name: 'TContent_ID', width: 75, key: true, editable: false },
 					{ label: 'Business Name', name: 'BusinessName', editable: true },
 					{ label: 'Physical Address', name: 'PhysicalAddress', width: 100, editable: true },
 					{ label: 'City', name: 'PhysicalCity', width: 75, editable: true },
-					{ label: 'State', name: 'PhysicalState', width: 50, editable: true },
+					{ label: 'State', name: 'PhysicalState', width: 100, editable: true },
 					{ label: 'Zip Code', name: 'PhysicalZipCode', width: 100, editable: true },
-					{ label: 'Active', name: 'Active', width: 50, editable: true, edittype: "select", editoptions: { value: "1:Yes;0:No"}}
 				],
 				sortname: 'TContent_ID',
 				sortorder : 'asc',
@@ -174,3 +173,4 @@ http://www.apache.org/licenses/LICENSE-2.0
 		});
 	</script>
 </cfoutput>
+<cfdump var="#Session.getActiveAuctions#">
