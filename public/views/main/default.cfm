@@ -8,7 +8,7 @@ Licensed under the Apache License, Version v2.0
 http://www.apache.org/licenses/LICENSE-2.0
 
 --->
-	<cfif Session.Mura.IsLoggedIn EQ True>
+<cfif Session.Mura.IsLoggedIn EQ True>
 		<cfparam name="Session.Mura.AdminSiteAdminRole" default="0" type="boolean">
 		<cfparam name="Session.Mura.AuctionSellerRole" default="0" type="boolean">
 		<cfparam name="Session.Mura.SuperAdminRole" default="0" type="boolean">
@@ -173,4 +173,3 @@ http://www.apache.org/licenses/LICENSE-2.0
 		});
 	</script>
 </cfoutput>
-<cfdump var="#Session.getActiveAuctions#">

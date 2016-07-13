@@ -4,7 +4,7 @@
 		<div class="panel panel-default">
 			<div class="panel-heading"><h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="##accordion" href="##collapseOne">Is account registration required?</a></h4></div>
 			<div id="collapseOne" class="panel-collapse collapse in">
-				<div class="panel-body">Account registration is only required if you will be selling or buying items on this site. This ensures a valid communication channel for all parties involved in any transaction.</div>
+				<div class="panel-body">Account registration is required for anyone who wants to attend one of the events or workshops that are posted on this site. only required if you will be selling or buying items on this site. This ensures a valid communication channel for all parties involved in any transaction.</div>
 			</div>
 		</div>
 		<div class="panel panel-default">

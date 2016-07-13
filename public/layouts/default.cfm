@@ -20,14 +20,14 @@
 							<ul class="dropdown-menu">
 								<cfif Session.Mura.IsLoggedIn EQ True>
 									<li class="<cfif rc.action eq 'public:main.login'>active</cfif>">
-										<a href="/index.cfm/auction-site/?doaction=logout"><i class="icon-home"></i> Account Logout</a>
+										<a href="#CGI.Script_name##CGI.path_info#??doaction=logout"><i class="icon-home"></i> Account Logout</a>
 									</li>
 									<li class="<cfif rc.action eq 'public:main.login'>active</cfif>">
-										<a href="?display=login"><i class="icon-home"></i> Manage Profile</a>
+										<a href="#CGI.Script_name##CGI.path_info#??display=login"><i class="icon-home"></i> Manage Profile</a>
 									</li>
 								<cfelse>
 									<li class="<cfif rc.action eq 'public:main.login'>active</cfif>">
-										<a href="?display=login"><i class="icon-home"></i> Account Login</a>
+										<a href="#CGI.Script_name##CGI.path_info#??display=login"><i class="icon-home"></i> Account Login</a>
 									</li>
 									<li class="<cfif rc.action eq 'public:register.account'>active</cfif>">
 										<a href="#buildURL('public:register.account')#"><i class="icon-home"></i> Register Account</a>
